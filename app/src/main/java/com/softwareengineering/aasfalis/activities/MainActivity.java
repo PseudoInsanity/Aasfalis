@@ -1,4 +1,4 @@
-package com.softwareengineering.aasfalis;
+package com.softwareengineering.aasfalis.activities;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -15,10 +15,12 @@ import android.view.MenuItem;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.softwareengineering.aasfalis.R;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
