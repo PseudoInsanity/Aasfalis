@@ -1,4 +1,4 @@
-package com.softwareengineering.aasfalis.activities;
+package com.softwareengineering.aasfalis.aasfalis.activities;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -19,7 +19,6 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -43,7 +42,7 @@ public class MapsActivity extends AppCompatActivity implements
     private Location lastLocation;
     private Marker currentUserLocationMarker;
 
-    private static final int REQUEST_USER_LOCATION_CODE =  99;
+    private static final int REQUEST_USER_LOCATION_CODE = 99;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,13 +71,10 @@ public class MapsActivity extends AppCompatActivity implements
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        Log.d("Edmir", "First I get here");
-        System.out.println("First I get here");
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            Log.d("Edmir", "Then I get here");
             buildGoogleApiClient();
             mMap.setMyLocationEnabled(true);
-        }  else {
+        } else {
             ActivityCompat.requestPermissions(this,
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                     REQUEST_USER_LOCATION_CODE);
@@ -87,7 +83,6 @@ public class MapsActivity extends AppCompatActivity implements
     }
 
     protected synchronized void buildGoogleApiClient() {
-
         googleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
@@ -100,7 +95,6 @@ public class MapsActivity extends AppCompatActivity implements
 
     @Override
     public void onLocationChanged(Location location) {
-
         lastLocation = location;
 
         if (currentUserLocationMarker != null) {
@@ -125,7 +119,6 @@ public class MapsActivity extends AppCompatActivity implements
     }
 
     public boolean checkUserLocationPermission() {
-
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
@@ -141,16 +134,15 @@ public class MapsActivity extends AppCompatActivity implements
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-
         switch (requestCode) {
             case REQUEST_USER_LOCATION_CODE:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                     if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                         if (googleApiClient == null) {
-                             buildGoogleApiClient();
-                         }
-                         mMap.setMyLocationEnabled(true);
-                     }
+                    if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                        if (googleApiClient == null) {
+                            buildGoogleApiClient();
+                        }
+                        mMap.setMyLocationEnabled(true);
+                    }
                 } else {
                     Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
                 }
@@ -160,7 +152,6 @@ public class MapsActivity extends AppCompatActivity implements
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-
         locationRequest = new LocationRequest();
         locationRequest.setInterval(1100);
         locationRequest.setFastestInterval(1100);

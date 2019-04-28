@@ -1,4 +1,4 @@
-package com.softwareengineering.aasfalis.activities;
+package com.softwareengineering.aasfalis.aasfalis.activities;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -11,8 +11,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
@@ -20,12 +18,10 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
-import android.os.Build;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -36,8 +32,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -84,27 +80,12 @@ public class MainActivity extends FragmentActivity implements
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        Log.d("Edmir", "Im in main");
 
-        try {
+        MapFragment mapFragment = (MapFragment) getFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
 
-            Log.d("Edmir", "Then I get to onCreate()");
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                checkUserLocationPermission();
-            }
-            Log.d("Edmir", "Then I'm above SupportFragment");
-            SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                    .findFragmentById(R.id.map);
-            Log.d("Edmir", "Now I'm below SupportFragment");
-            mapFragment.getMapAsync(this);
-            Log.d("Edmir", "Then I'm below mapFragment");
-        } catch (NullPointerException nx) {
-            nx.printStackTrace();
 
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            Log.d("Edmir", ex.getCause().toString());
-        }
     }
 
 
@@ -189,7 +170,13 @@ public class MainActivity extends FragmentActivity implements
         System.out.println("First I get here");
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             Log.d("Edmir", "Then I get here");
-            buildGoogleApiClient();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    buildGoogleApiClient();
+                }
+            }).start();
+
             mMap.setMyLocationEnabled(true);
         }
 
@@ -223,8 +210,16 @@ public class MainActivity extends FragmentActivity implements
 
         currentUserLocationMarker = mMap.addMarker(markerOptions);
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        mMap.animateCamera(CameraUpdateFactory.zoomBy(12));
+
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
+
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(latLng)      // Sets the center of the map to location user
+                .zoom(17)                   // Sets the zoom
+                .bearing(90)                // Sets the orientation of the camera to east
+                .tilt(40)                   // Sets the tilt of the camera to 30 degrees
+                .build();                   // Creates a CameraPosition from the builder
+        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
         if (googleApiClient != null) {
             LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
