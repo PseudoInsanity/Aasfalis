@@ -1,4 +1,4 @@
-package com.softwareengineering.aasfalis.aasfalis.activities;
+package com.softwareengineering.aasfalis.activities;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -12,6 +12,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -39,7 +41,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.softwareengineering.aasfalis.R;
 
-public class MainActivity extends FragmentActivity implements
+public class MainActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener,
         OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
@@ -52,6 +54,8 @@ public class MainActivity extends FragmentActivity implements
     private Location lastLocation;
     private Marker currentUserLocationMarker;
 
+//    private ActionBar actionBar = getSupportActionBar();
+
     private static final int REQUEST_USER_LOCATION_CODE = 99;
 
     DrawerLayout drawer;
@@ -61,7 +65,7 @@ public class MainActivity extends FragmentActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        //setSupportActionBar(toolbar);
+        setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -166,10 +170,7 @@ public class MainActivity extends FragmentActivity implements
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        Log.d("Edmir", "First I get here");
-        System.out.println("First I get here");
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            Log.d("Edmir", "Then I get here");
             new Thread(new Runnable() {
                 @Override
                 public void run() {
