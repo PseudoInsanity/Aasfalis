@@ -1,4 +1,4 @@
-package com.softwareengineering.aasfalis.aasfalis.activities;
+package com.softwareengineering.aasfalis.activities;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -14,6 +14,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -40,9 +41,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.softwareengineering.aasfalis.R;
-import com.softwareengineering.aasfalis.aasfalis.fragments.LoginFragment;
+import com.softwareengineering.aasfalis.fragments.LoginFragment;
 
-public class MainActivity extends FragmentActivity implements
+public class MainActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener,
         OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
@@ -64,7 +65,7 @@ public class MainActivity extends FragmentActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        //setSupportActionBar(toolbar);
+        setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -85,6 +86,7 @@ public class MainActivity extends FragmentActivity implements
         navigationView.setNavigationItemSelectedListener(this);
         Log.d("Edmir", "Im in main");
 
+        checkUserLocationPermission();
         try {
 
             Log.d("Edmir", "Then I get to onCreate()");

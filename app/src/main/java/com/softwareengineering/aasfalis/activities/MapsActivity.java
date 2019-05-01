@@ -1,4 +1,4 @@
-package com.softwareengineering.aasfalis.aasfalis.activities;
+package com.softwareengineering.aasfalis.activities;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
