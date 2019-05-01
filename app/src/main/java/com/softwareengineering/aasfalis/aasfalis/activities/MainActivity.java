@@ -11,6 +11,8 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
@@ -38,6 +40,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.softwareengineering.aasfalis.R;
+import com.softwareengineering.aasfalis.aasfalis.fragments.LoginFragment;
 
 public class MainActivity extends FragmentActivity implements
         NavigationView.OnNavigationItemSelectedListener,
@@ -72,7 +75,7 @@ public class MainActivity extends FragmentActivity implements
             }
         });
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
@@ -150,6 +153,9 @@ public class MainActivity extends FragmentActivity implements
         Class fragmentClass = null;
 
         switch (id) {
+            case R.id.nav_profile:
+                fragmentClass = LoginFragment.class;
+                break;
             case R.id.nav_friends:
                 break;
             case R.id.nav_settings:
@@ -165,13 +171,13 @@ public class MainActivity extends FragmentActivity implements
         } catch (Exception e) {
             e.printStackTrace();
         }
-/*
+
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.replace(R.id.fragment_holder, fragment);
+        transaction.replace(R.id.map, fragment);
         transaction.addToBackStack(null);
         transaction.commit();
-*/
+
 
         drawer.closeDrawer(GravityCompat.START);
     }
