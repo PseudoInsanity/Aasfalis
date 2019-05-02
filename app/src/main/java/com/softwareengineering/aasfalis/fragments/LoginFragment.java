@@ -51,9 +51,9 @@ public class LoginFragment extends Fragment {
 
     CallbackManager callbackManager;
 
-    EditText username, password;
-    Button loginButton;
-    LoginButton fbLoginButton;
+    private EditText username, password;
+    private Button loginButton;
+    private LoginButton fbLoginButton;
     private TextView txtName, txtEmail;
 
     AccessToken accessToken = AccessToken.getCurrentAccessToken();
@@ -86,7 +86,6 @@ public class LoginFragment extends Fragment {
                 LoginManager.getInstance().logInWithPublishPermissions(LoginFragment.this, Arrays.asList("public_profile"));
                 Toast.makeText(getContext(), "Facebook login success!",
                         Toast.LENGTH_LONG).show();
-
             }
 
             @Override
@@ -100,6 +99,7 @@ public class LoginFragment extends Fragment {
                 Toast.makeText(getContext(), "Error",
                         Toast.LENGTH_LONG).show();
                 Log.d("Samin", exception.getMessage());
+                Log.d("Edmir", exception.getMessage());
             }
         });
 
