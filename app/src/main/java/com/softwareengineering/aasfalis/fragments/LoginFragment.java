@@ -14,12 +14,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.facebook.AccessToken;
+import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
@@ -30,6 +36,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.softwareengineering.aasfalis.R;
 import com.softwareengineering.aasfalis.activities.MainActivity;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Arrays;
 
@@ -45,6 +54,7 @@ public class LoginFragment extends Fragment {
     EditText username, password;
     Button loginButton;
     LoginButton fbLoginButton;
+    private TextView txtName, txtEmail;
 
     AccessToken accessToken = AccessToken.getCurrentAccessToken();
     boolean isLoggedIn = accessToken != null && !accessToken.isExpired();
@@ -66,7 +76,10 @@ public class LoginFragment extends Fragment {
         fbLoginButton = (LoginButton) inflate.findViewById(R.id.login_button);
         fbLoginButton.setReadPermissions(Arrays.asList(EMAIL));
         fbLoginButton.setFragment(this);
-        // Callback registration
+        checkLoginStatus();
+
+
+        // Callback registration for fb
         fbLoginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
@@ -75,6 +88,7 @@ public class LoginFragment extends Fragment {
                         Toast.LENGTH_LONG).show();
 
             }
+
             @Override
             public void onCancel() {
                 Toast.makeText(getContext(), "Cancel",
@@ -85,6 +99,7 @@ public class LoginFragment extends Fragment {
             public void onError(FacebookException exception) {
                 Toast.makeText(getContext(), "Error",
                         Toast.LENGTH_LONG).show();
+                Log.d("Samin", exception.getMessage());
             }
         });
 
@@ -106,6 +121,17 @@ public class LoginFragment extends Fragment {
 
         return inflate;
     }
+
+
+    AccessTokenTracker accessTokenTracker = new AccessTokenTracker() {
+        @Override
+        protected void onCurrentAccessTokenChanged(AccessToken oldAccessToken, AccessToken currentAccessToken) {
+
+            if (currentAccessToken == null) {
+
+            }
+        }
+    };
 
     private void loginUser(String mail, String password, final View v) {
         firebaseAuth.signInWithEmailAndPassword(mail, password)
@@ -174,7 +200,7 @@ public class LoginFragment extends Fragment {
             case REQUEST_USER_LOCATION_CODE:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED) {
-                       checkUserInternetPermission();
+                        checkUserInternetPermission();
                     }
                 } else {
                     Toast.makeText(getActivity(), "Permission Denied", Toast.LENGTH_SHORT).show();
@@ -183,5 +209,43 @@ public class LoginFragment extends Fragment {
         }
     }
 
+    private void loadUserProfile(AccessToken newAccessToken) {
+        GraphRequest request = GraphRequest.newMeRequest(newAccessToken, new GraphRequest.GraphJSONObjectCallback() {
+            @Override
+            public void onCompleted(JSONObject object, GraphResponse response) {
+                try {
+                    String first_name = object.getString("first_name");
+                    String last_name = object.getString("last_name");
+                    String email = object.getString("email");
+                    String id = object.getString("id");
+                    String image_url = "https://graph.facebook.com/" + id + "/picture?type=normal";
 
+                    txtEmail.setText(email);
+                    txtName.setText(first_name + " " + last_name);
+                    RequestOptions requestOptions = new RequestOptions();
+                    requestOptions.dontAnimate();
+
+                    //Glide.with(LoginFragment.this).load(image_url).into();
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
+
+        Bundle parameters = new Bundle();
+        parameters.putString("fields", "first_name,last_name,email,id");
+        request.setParameters(parameters);
+        request.executeAsync();
+
+
+    }
+
+    private void checkLoginStatus() {
+        if (AccessToken.getCurrentAccessToken() != null) {
+            loadUserProfile(AccessToken.getCurrentAccessToken());
+        }
+    }
 }
