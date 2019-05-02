@@ -53,12 +53,9 @@ public class MainActivity extends AppCompatActivity implements
     private LocationRequest locationRequest;
     private Location lastLocation;
     private Marker currentUserLocationMarker;
-
-//    private ActionBar actionBar = getSupportActionBar();
+    private DrawerLayout drawer;
 
     private static final int REQUEST_USER_LOCATION_CODE = 99;
-
-    DrawerLayout drawer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,8 +86,6 @@ public class MainActivity extends AppCompatActivity implements
         MapFragment mapFragment = (MapFragment) getFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-
     }
 
 
@@ -181,7 +176,6 @@ public class MainActivity extends AppCompatActivity implements
 
             mMap.setMyLocationEnabled(true);
         }
-
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -211,7 +205,6 @@ public class MainActivity extends AppCompatActivity implements
         markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
 
         currentUserLocationMarker = mMap.addMarker(markerOptions);
-
 
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
 
@@ -256,7 +249,6 @@ public class MainActivity extends AppCompatActivity implements
                 } else {
                     Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
                 }
-
         }
     }
 
@@ -270,8 +262,6 @@ public class MainActivity extends AppCompatActivity implements
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
         }
-
-
     }
 
     @Override
