@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -79,13 +81,22 @@ public class LoginFragment extends Fragment {
         checkLoginStatus();
 
 
+
         // Callback registration for fb
         fbLoginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                LoginManager.getInstance().logInWithPublishPermissions(LoginFragment.this, Arrays.asList("public_profile"));
+                LoginManager.getInstance().logInWithPublishPermissions(LoginFragment.this, Arrays.asList("public_profile","email"));
                 Toast.makeText(getContext(), "Facebook login success!",
                         Toast.LENGTH_LONG).show();
+                Fragment fragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.map);
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                transaction.replace(R.id.map, fragment);
+                transaction.addToBackStack(null);
+                transaction.commit();
+
+
 
             }
 
@@ -99,7 +110,6 @@ public class LoginFragment extends Fragment {
             public void onError(FacebookException exception) {
                 Toast.makeText(getContext(), "Error",
                         Toast.LENGTH_LONG).show();
-                Log.d("Samin", exception.getMessage());
             }
         });
 
@@ -220,10 +230,10 @@ public class LoginFragment extends Fragment {
                     String id = object.getString("id");
                     String image_url = "https://graph.facebook.com/" + id + "/picture?type=normal";
 
-                    txtEmail.setText(email);
-                    txtName.setText(first_name + " " + last_name);
-                    RequestOptions requestOptions = new RequestOptions();
-                    requestOptions.dontAnimate();
+                    //txtEmail.setText(email);
+                    //txtName.setText(first_name + " " + last_name);
+                    //RequestOptions requestOptions = new RequestOptions();
+                    //requestOptions.dontAnimate();
 
                     //Glide.with(LoginFragment.this).load(image_url).into();
 
