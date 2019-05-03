@@ -10,11 +10,16 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.AppCompatCheckBox;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -57,6 +62,7 @@ public class LoginFragment extends Fragment {
     Button loginButton;
     LoginButton fbLoginButton;
     private TextView txtName, txtEmail;
+    AppCompatCheckBox checkBox;
 
     AccessToken accessToken = AccessToken.getCurrentAccessToken();
     boolean isLoggedIn = accessToken != null && !accessToken.isExpired();
@@ -71,6 +77,7 @@ public class LoginFragment extends Fragment {
         firebaseAuth = FirebaseAuth.getInstance();
         username = inflate.findViewById(R.id.editTextUsername);
         password = inflate.findViewById(R.id.editTextPassword);
+        checkBox = inflate.findViewById(R.id.checkbox);
 
         callbackManager = CallbackManager.Factory.create();
 
@@ -79,6 +86,20 @@ public class LoginFragment extends Fragment {
         fbLoginButton.setReadPermissions(Arrays.asList(EMAIL));
         fbLoginButton.setFragment(this);
         checkLoginStatus();
+
+        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean value) {
+                if(value){
+                    //show password
+                    password.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                }
+                else {
+                    //hide password
+                    password.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                }
+            }
+        });
 
 
 
