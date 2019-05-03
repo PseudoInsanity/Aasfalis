@@ -7,12 +7,20 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.widget.AppCompatCheckBox;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,7 +48,10 @@ import com.softwareengineering.aasfalis.activities.MainActivity;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 
 import static android.content.ContentValues.TAG;
 
@@ -55,6 +66,8 @@ public class LoginFragment extends Fragment {
     private Button loginButton;
     private LoginButton fbLoginButton;
     private TextView txtName, txtEmail;
+    private AppCompatCheckBox checkBox;
+
 
     AccessToken accessToken = AccessToken.getCurrentAccessToken();
     boolean isLoggedIn = accessToken != null && !accessToken.isExpired();
@@ -69,6 +82,7 @@ public class LoginFragment extends Fragment {
         firebaseAuth = FirebaseAuth.getInstance();
         username = inflate.findViewById(R.id.editTextUsername);
         password = inflate.findViewById(R.id.editTextPassword);
+        checkBox = inflate.findViewById(R.id.checkbox);
 
         callbackManager = CallbackManager.Factory.create();
 
@@ -78,14 +92,43 @@ public class LoginFragment extends Fragment {
         fbLoginButton.setFragment(this);
         checkLoginStatus();
 
+        Collection<String> readPermissions = new ArrayList<>();
+        readPermissions.add("public_profile");
+        readPermissions.add("email");
+        readPermissions.add("user_birthday");
+        Collection<String> publishPermissions = new ArrayList<>();
+        publishPermissions.add("publish_actions");
+
+        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean value) {
+                if(value){
+                    //show password
+                    password.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                }
+                else {
+                    //hide password
+                    password.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                }
+            }
+        });
+
+
 
         // Callback registration for fb
         fbLoginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                LoginManager.getInstance().logInWithPublishPermissions(LoginFragment.this, Arrays.asList("public_profile"));
+                Log.d("Edmir", "Success");
+                LoginManager.getInstance().logInWithReadPermissions(LoginFragment.this, Arrays.asList("public_profile", "user_friends", "email"));
                 Toast.makeText(getContext(), "Facebook login success!",
                         Toast.LENGTH_LONG).show();
+                Fragment fragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.map);
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                fragmentManager.popBackStack();
+
+
+
             }
 
             @Override
@@ -220,10 +263,10 @@ public class LoginFragment extends Fragment {
                     String id = object.getString("id");
                     String image_url = "https://graph.facebook.com/" + id + "/picture?type=normal";
 
-                    txtEmail.setText(email);
-                    txtName.setText(first_name + " " + last_name);
-                    RequestOptions requestOptions = new RequestOptions();
-                    requestOptions.dontAnimate();
+                    // txtEmail.setText(email);
+                    // txtName.setText(first_name + " " + last_name);
+                    // RequestOptions requestOptions = new RequestOptions();
+                    // requestOptions.dontAnimate();
 
                     //Glide.with(LoginFragment.this).load(image_url).into();
 
@@ -244,7 +287,7 @@ public class LoginFragment extends Fragment {
     }
 
     private void checkLoginStatus() {
-        if (AccessToken.getCurrentAccessToken() != null) {
+        if (isLoggedIn) {
             loadUserProfile(AccessToken.getCurrentAccessToken());
         }
     }
