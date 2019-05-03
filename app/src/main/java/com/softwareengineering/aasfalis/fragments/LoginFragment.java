@@ -40,7 +40,10 @@ import com.softwareengineering.aasfalis.activities.MainActivity;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 
 import static android.content.ContentValues.TAG;
 
@@ -51,9 +54,9 @@ public class LoginFragment extends Fragment {
 
     CallbackManager callbackManager;
 
-    EditText username, password;
-    Button loginButton;
-    LoginButton fbLoginButton;
+    private EditText username, password;
+    private Button loginButton;
+    private LoginButton fbLoginButton;
     private TextView txtName, txtEmail;
 
     AccessToken accessToken = AccessToken.getCurrentAccessToken();
@@ -78,12 +81,20 @@ public class LoginFragment extends Fragment {
         fbLoginButton.setFragment(this);
         checkLoginStatus();
 
+        Collection<String> readPermissions = new ArrayList<>();
+        readPermissions.add("public_profile");
+        readPermissions.add("email");
+        readPermissions.add("user_birthday");
+        Collection<String> publishPermissions = new ArrayList<>();
+        publishPermissions.add("publish_actions");
+
 
         // Callback registration for fb
         fbLoginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                LoginManager.getInstance().logInWithPublishPermissions(LoginFragment.this, Arrays.asList("public_profile"));
+                Log.d("Edmir", "Success");
+                LoginManager.getInstance().logInWithPublishPermissions(LoginFragment.this, Arrays.asList("public_profile", "user_friends", "email"));
                 Toast.makeText(getContext(), "Facebook login success!",
                         Toast.LENGTH_LONG).show();
 
@@ -100,6 +111,7 @@ public class LoginFragment extends Fragment {
                 Toast.makeText(getContext(), "Error",
                         Toast.LENGTH_LONG).show();
                 Log.d("Samin", exception.getMessage());
+                Log.d("Edmir", exception.getMessage());
             }
         });
 
@@ -220,10 +232,10 @@ public class LoginFragment extends Fragment {
                     String id = object.getString("id");
                     String image_url = "https://graph.facebook.com/" + id + "/picture?type=normal";
 
-                    txtEmail.setText(email);
-                    txtName.setText(first_name + " " + last_name);
-                    RequestOptions requestOptions = new RequestOptions();
-                    requestOptions.dontAnimate();
+                    // txtEmail.setText(email);
+                    // txtName.setText(first_name + " " + last_name);
+                    // RequestOptions requestOptions = new RequestOptions();
+                    // requestOptions.dontAnimate();
 
                     //Glide.with(LoginFragment.this).load(image_url).into();
 
@@ -244,7 +256,7 @@ public class LoginFragment extends Fragment {
     }
 
     private void checkLoginStatus() {
-        if (AccessToken.getCurrentAccessToken() != null) {
+        if (isLoggedIn) {
             loadUserProfile(AccessToken.getCurrentAccessToken());
         }
     }
