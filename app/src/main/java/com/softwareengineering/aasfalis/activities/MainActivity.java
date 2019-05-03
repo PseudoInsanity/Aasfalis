@@ -69,11 +69,11 @@ public class MainActivity extends AppCompatActivity implements
     private DrawerLayout drawer;
     private Toolbar toolbar;
     private ValueAnimator mVaActionBar;
+    private NavigationView navigationView;
 
     // holds the original Toolbar height.
     // this can also be obtained via (an)other method(s)
     private int mToolbarHeight, mAnimDuration = 600/* milliseconds */;
-    private boolean isHidden = false;
 
     private static final int REQUEST_USER_LOCATION_CODE = 99;
 
@@ -100,13 +100,11 @@ public class MainActivity extends AppCompatActivity implements
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setCheckedItem(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        ActionBar actionBar = getSupportActionBar();
-        if (isHidden) {
-           drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-        }
+
         checkUserLocationPermission();
         MapFragment mapFragment = (MapFragment) getFragmentManager()
                 .findFragmentById(R.id.map);
@@ -123,6 +121,7 @@ public class MainActivity extends AppCompatActivity implements
         } else {
             super.onBackPressed();
         }
+        navigationView.getMenu().getItem(0).setChecked(false);
     }
 
     @Override
@@ -186,8 +185,7 @@ public class MainActivity extends AppCompatActivity implements
         transaction.addToBackStack(null);
         transaction.commit();
 
-
-
+        navigationView.getMenu().getItem(0).setChecked(true);
         drawer.closeDrawer(GravityCompat.START);
     }
 
@@ -212,7 +210,7 @@ public class MainActivity extends AppCompatActivity implements
             @Override
             public void onMapClick(LatLng latLng) {
                 ActionBar actionBar = getSupportActionBar();
-                if (actionBar.isShowing() && !isHidden) {
+                if (actionBar.isShowing()) {
                     hideActionBar();
                 } else {
                     showActionBar();
@@ -320,7 +318,6 @@ public class MainActivity extends AppCompatActivity implements
 
 
     private void showActionBar() {
-        isHidden = true;
         if (mVaActionBar != null && mVaActionBar.isRunning()) {
             // we are already animating a transition - block here
             return;
@@ -352,11 +349,11 @@ public class MainActivity extends AppCompatActivity implements
         mVaActionBar.setDuration(mAnimDuration);
         mVaActionBar.start();
 
+        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
     }
 
 
     private void hideActionBar() {
-        isHidden = true;
         // initialize `mToolbarHeight`
         if (mToolbarHeight == 0) {
             mToolbarHeight = toolbar.getHeight();
@@ -393,7 +390,7 @@ public class MainActivity extends AppCompatActivity implements
         mVaActionBar.setDuration(mAnimDuration);
         mVaActionBar.start();
 
-
+        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
     }
 
 
