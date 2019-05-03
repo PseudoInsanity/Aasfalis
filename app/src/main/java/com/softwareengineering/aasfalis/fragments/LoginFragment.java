@@ -118,7 +118,7 @@ public class LoginFragment extends Fragment {
             @Override
             public void onSuccess(LoginResult loginResult) {
                 Log.d("Edmir", "Success");
-                LoginManager.getInstance().logInWithPublishPermissions(LoginFragment.this, Arrays.asList("public_profile", "user_friends", "email"));
+                LoginManager.getInstance().logInWithReadPermissions(LoginFragment.this, Arrays.asList("public_profile", "user_friends", "email"));
                 Toast.makeText(getContext(), "Facebook login success!",
                         Toast.LENGTH_LONG).show();
                 Fragment fragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.map);
