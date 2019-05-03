@@ -1,11 +1,15 @@
 package com.softwareengineering.aasfalis.activities;
 
 import android.Manifest;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ValueAnimator;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -23,6 +27,8 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -54,6 +60,12 @@ public class MainActivity extends AppCompatActivity implements
     private Location lastLocation;
     private Marker currentUserLocationMarker;
     private DrawerLayout drawer;
+    private Toolbar toolbar;
+    private ValueAnimator mVaActionBar;
+
+    // holds the original Toolbar height.
+    // this can also be obtained via (an)other method(s)
+    private int mToolbarHeight, mAnimDuration = 600/* milliseconds */;
 
     private static final int REQUEST_USER_LOCATION_CODE = 99;
 
@@ -61,8 +73,9 @@ public class MainActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -86,8 +99,9 @@ public class MainActivity extends AppCompatActivity implements
         MapFragment mapFragment = (MapFragment) getFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-    }
 
+
+    }
 
     @Override
     public void onBackPressed() {
@@ -161,7 +175,6 @@ public class MainActivity extends AppCompatActivity implements
         drawer.closeDrawer(GravityCompat.START);
     }
 
-
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -176,6 +189,21 @@ public class MainActivity extends AppCompatActivity implements
 
             mMap.setMyLocationEnabled(true);
         }
+
+        googleMap.getUiSettings().setMapToolbarEnabled(false);
+
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                ActionBar actionBar = getSupportActionBar();
+                if (actionBar.isShowing()) {
+                    hideActionBar();
+                } else {
+                    showActionBar();
+
+                }
+            }
+        });
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -273,5 +301,95 @@ public class MainActivity extends AppCompatActivity implements
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
     }
+
+    //protected void hideActionBar() {
+    //    final ActionBar ab = getSupportActionBar();
+    //    if (ab != null && ab.isShowing()) {
+    //        if (toolbar != null) {
+    //            toolbar.animate().translationY(-112).setDuration(600L)
+    //                    .withEndAction(new Runnable() {
+    //                        @Override
+    //                        public void run() {
+    //                            ab.hide();
+    //                        }
+    //                    }).start();
+    //        } else {
+    //            ab.hide();
+    //        }
+    //    }
+    //}
+
+    protected void showActionBar() {
+        if (mVaActionBar != null && mVaActionBar.isRunning()) {
+            // we are already animating a transition - block here
+            return;
+        }
+
+        // restore `Toolbar's` height
+        mVaActionBar = ValueAnimator.ofInt(0, mToolbarHeight);
+        mVaActionBar.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                // update LayoutParams
+                ((AppBarLayout.LayoutParams) toolbar.getLayoutParams()).height
+                        = (Integer) animation.getAnimatedValue();
+                toolbar.requestLayout();
+            }
+        });
+
+        mVaActionBar.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                super.onAnimationStart(animation);
+
+                if (getSupportActionBar() != null) { // sanity check
+                    getSupportActionBar().show();
+                }
+            }
+        });
+
+        mVaActionBar.setDuration(mAnimDuration);
+        mVaActionBar.start();
+    }
+
+
+    void hideActionBar() {
+        // initialize `mToolbarHeight`
+        if (mToolbarHeight == 0) {
+            mToolbarHeight = toolbar.getHeight();
+        }
+
+        if (mVaActionBar != null && mVaActionBar.isRunning()) {
+            // we are already animating a transition - block here
+            return;
+        }
+
+        // animate `Toolbar's` height to zero.
+        mVaActionBar = ValueAnimator.ofInt(mToolbarHeight, 0);
+        mVaActionBar.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                // update LayoutParams
+                ((AppBarLayout.LayoutParams) toolbar.getLayoutParams()).height
+                        = (Integer) animation.getAnimatedValue();
+                toolbar.requestLayout();
+            }
+        });
+
+        mVaActionBar.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+
+                if (getSupportActionBar() != null) { // sanity check
+                    getSupportActionBar().hide();
+                }
+            }
+        });
+
+        mVaActionBar.setDuration(mAnimDuration);
+        mVaActionBar.start();
+    }
+
 
 }
