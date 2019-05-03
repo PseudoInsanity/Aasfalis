@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -78,7 +79,7 @@ public class LoginFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle saveInstanceState) {
 
-        View inflate = inflater.inflate(R.layout.fragment_login, container, false);
+        final View inflate = inflater.inflate(R.layout.fragment_login, container, false);
         firebaseAuth = FirebaseAuth.getInstance();
         username = inflate.findViewById(R.id.editTextUsername);
         password = inflate.findViewById(R.id.editTextPassword);
@@ -92,12 +93,6 @@ public class LoginFragment extends Fragment {
         fbLoginButton.setFragment(this);
         checkLoginStatus();
 
-        Collection<String> readPermissions = new ArrayList<>();
-        readPermissions.add("public_profile");
-        readPermissions.add("email");
-        readPermissions.add("user_birthday");
-        Collection<String> publishPermissions = new ArrayList<>();
-        publishPermissions.add("publish_actions");
 
         checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -123,11 +118,12 @@ public class LoginFragment extends Fragment {
                 LoginManager.getInstance().logInWithReadPermissions(LoginFragment.this, Arrays.asList("public_profile", "user_friends", "email"));
                 Toast.makeText(getContext(), "Facebook login success!",
                         Toast.LENGTH_LONG).show();
-                Fragment fragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.map);
+
+                NavigationView navigationView = getActivity().findViewById(R.id.nav_view);
+                navigationView.getMenu().getItem(0).setChecked(false);
+
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 fragmentManager.popBackStack();
-
-
 
             }
 
