@@ -14,8 +14,9 @@
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="224dp"
-        android:layout_height="wrap_content"
+        android:layout_width="94dp"
+        android:layout_height="75dp"
+        android:background="@mipmap/logo"
         android:contentDescription="@string/nav_header_desc"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
         app:srcCompat="@mipmap/transparent_logo_small" />
