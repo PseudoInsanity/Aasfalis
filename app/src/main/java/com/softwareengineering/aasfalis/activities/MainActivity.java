@@ -73,6 +73,7 @@ public class MainActivity extends AppCompatActivity implements
     // holds the original Toolbar height.
     // this can also be obtained via (an)other method(s)
     private int mToolbarHeight, mAnimDuration = 600/* milliseconds */;
+    private boolean isHidden = false;
 
     private static final int REQUEST_USER_LOCATION_CODE = 99;
 
@@ -102,6 +103,10 @@ public class MainActivity extends AppCompatActivity implements
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        ActionBar actionBar = getSupportActionBar();
+        if (isHidden) {
+           drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        }
         checkUserLocationPermission();
         MapFragment mapFragment = (MapFragment) getFragmentManager()
                 .findFragmentById(R.id.map);
@@ -182,6 +187,7 @@ public class MainActivity extends AppCompatActivity implements
         transaction.commit();
 
 
+
         drawer.closeDrawer(GravityCompat.START);
     }
 
@@ -206,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements
             @Override
             public void onMapClick(LatLng latLng) {
                 ActionBar actionBar = getSupportActionBar();
-                if (actionBar.isShowing()) {
+                if (actionBar.isShowing() && !isHidden) {
                     hideActionBar();
                 } else {
                     showActionBar();
@@ -313,7 +319,8 @@ public class MainActivity extends AppCompatActivity implements
     }
 
 
-    protected void showActionBar() {
+    private void showActionBar() {
+        isHidden = true;
         if (mVaActionBar != null && mVaActionBar.isRunning()) {
             // we are already animating a transition - block here
             return;
@@ -344,10 +351,12 @@ public class MainActivity extends AppCompatActivity implements
 
         mVaActionBar.setDuration(mAnimDuration);
         mVaActionBar.start();
+
     }
 
 
-    void hideActionBar() {
+    private void hideActionBar() {
+        isHidden = true;
         // initialize `mToolbarHeight`
         if (mToolbarHeight == 0) {
             mToolbarHeight = toolbar.getHeight();
@@ -383,6 +392,8 @@ public class MainActivity extends AppCompatActivity implements
 
         mVaActionBar.setDuration(mAnimDuration);
         mVaActionBar.start();
+
+
     }
 
 

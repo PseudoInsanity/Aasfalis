@@ -10,6 +10,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
@@ -65,7 +66,8 @@ public class LoginFragment extends Fragment {
     private Button loginButton;
     private LoginButton fbLoginButton;
     private TextView txtName, txtEmail;
-    AppCompatCheckBox checkBox;
+    private AppCompatCheckBox checkBox;
+
 
     AccessToken accessToken = AccessToken.getCurrentAccessToken();
     boolean isLoggedIn = accessToken != null && !accessToken.isExpired();
@@ -123,10 +125,7 @@ public class LoginFragment extends Fragment {
                         Toast.LENGTH_LONG).show();
                 Fragment fragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.map);
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                FragmentTransaction transaction = fragmentManager.beginTransaction();
-                transaction.replace(R.id.map, fragment);
-                transaction.addToBackStack(null);
-                transaction.commit();
+                fragmentManager.popBackStack();
 
 
 
