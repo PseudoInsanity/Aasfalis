@@ -7,12 +7,19 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.AppCompatCheckBox;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -58,6 +65,7 @@ public class LoginFragment extends Fragment {
     private Button loginButton;
     private LoginButton fbLoginButton;
     private TextView txtName, txtEmail;
+    AppCompatCheckBox checkBox;
 
     AccessToken accessToken = AccessToken.getCurrentAccessToken();
     boolean isLoggedIn = accessToken != null && !accessToken.isExpired();
@@ -72,6 +80,7 @@ public class LoginFragment extends Fragment {
         firebaseAuth = FirebaseAuth.getInstance();
         username = inflate.findViewById(R.id.editTextUsername);
         password = inflate.findViewById(R.id.editTextPassword);
+        checkBox = inflate.findViewById(R.id.checkbox);
 
         callbackManager = CallbackManager.Factory.create();
 
@@ -88,6 +97,21 @@ public class LoginFragment extends Fragment {
         Collection<String> publishPermissions = new ArrayList<>();
         publishPermissions.add("publish_actions");
 
+        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean value) {
+                if(value){
+                    //show password
+                    password.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                }
+                else {
+                    //hide password
+                    password.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                }
+            }
+        });
+
+
 
         // Callback registration for fb
         fbLoginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
@@ -97,6 +121,14 @@ public class LoginFragment extends Fragment {
                 LoginManager.getInstance().logInWithPublishPermissions(LoginFragment.this, Arrays.asList("public_profile", "user_friends", "email"));
                 Toast.makeText(getContext(), "Facebook login success!",
                         Toast.LENGTH_LONG).show();
+                Fragment fragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.map);
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                transaction.replace(R.id.map, fragment);
+                transaction.addToBackStack(null);
+                transaction.commit();
+
+
 
             }
 
