@@ -1,8 +1,12 @@
 package com.softwareengineering.aasfalis.fragments;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -66,7 +70,7 @@ public class LoginFragment extends Fragment {
     private EditText username, password;
     private Button loginButton;
     private LoginButton fbLoginButton;
-    private TextView txtName, txtEmail;
+    private TextView txtName, txtEmail, signup,forgotPass;
     private AppCompatCheckBox checkBox;
 
     public static boolean loggedIn;
@@ -85,6 +89,9 @@ public class LoginFragment extends Fragment {
         username = inflate.findViewById(R.id.editTextUsername);
         password = inflate.findViewById(R.id.editTextPassword);
         checkBox = inflate.findViewById(R.id.checkbox);
+        signup = inflate.findViewById(R.id.sign_up_txt);
+        forgotPass = inflate.findViewById(R.id.forgot_password_txt);
+
 
         callbackManager = CallbackManager.Factory.create();
 
@@ -109,6 +116,64 @@ public class LoginFragment extends Fragment {
             }
         });
 
+
+        signup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Fragment fragment = new RegisterFragment();
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                transaction.replace(R.id.map, fragment);
+                transaction.addToBackStack(null);
+                transaction.commit();
+            }
+        });
+
+        forgotPass.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final EditText editText = new EditText(view.getContext());
+                editText.getBackground().setColorFilter(getResources().getColor(R.color.colorPrimary),
+                        PorterDuff.Mode.SRC_ATOP);
+                editText.setTextColor(getResources().getColor(R.color.colorPrimary));
+                editText.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+                AlertDialog dialog = new AlertDialog.Builder(view.getContext(), R.style.Theme_AppCompat_Dialog_Alert)
+                        .setTitle("Enter Email")
+                        .setView(editText)
+                        .setPositiveButton("Restore Password", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                                firebaseAuth = FirebaseAuth.getInstance();
+
+                                    String emailAddress = editText.getText().toString();
+                                    if(!emailAddress.isEmpty()){
+                                        firebaseAuth.sendPasswordResetEmail(emailAddress)
+                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                        if (task.isSuccessful()) {
+                                                            new AlertDialog.Builder(getContext())
+                                                                    .setTitle("Email Sent!")
+                                                                    .setMessage("Please follow the link in your email")
+                                                                    // A null listener allows the button to dismiss the dialog and take no further action.
+                                                                    .setNegativeButton(android.R.string.no, null)
+                                                                    .setIcon(android.R.drawable.ic_dialog_info)
+                                                                    .show();
+                                                        }
+                                                    }
+                                                });
+                                    }
+
+
+
+                            }
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .create();
+                dialog.show();
+            }
+        });
 
 
         // Callback registration for fb
