@@ -69,6 +69,7 @@ public class LoginFragment extends Fragment {
     private TextView txtName, txtEmail;
     private AppCompatCheckBox checkBox;
 
+    public static boolean loggedIn;
 
     AccessToken accessToken = AccessToken.getCurrentAccessToken();
     boolean isLoggedIn = accessToken != null && !accessToken.isExpired();
@@ -114,6 +115,7 @@ public class LoginFragment extends Fragment {
         fbLoginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
+                loggedIn = true;
                 Log.d("Edmir", "Success");
                 LoginManager.getInstance().logInWithReadPermissions(LoginFragment.this, Arrays.asList("public_profile", "user_friends", "email"));
                 Toast.makeText(getContext(), "Facebook login success!",

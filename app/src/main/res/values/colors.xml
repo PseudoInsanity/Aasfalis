@@ -3,4 +3,12 @@
     <color name="colorPrimary">#13457c</color>
     <color name="colorPrimaryDark">#0E3056</color>
     <color name="colorAccent">#EDECDE</color>
+
+    <color name="address">#0b72e8</color>
+    <color name="followers">#0b5dbc</color>
+    <color name="headings">#54a1f9</color>
+    <color name="solidCircle">#9dc8f9</color>
+    <color name="circleBorder">#56a5ff</color>
+    <color name="grey">#292929</color>
+
 </resources>

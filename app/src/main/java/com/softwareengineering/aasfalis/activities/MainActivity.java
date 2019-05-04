@@ -53,6 +53,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.softwareengineering.aasfalis.R;
 import com.softwareengineering.aasfalis.fragments.LoginFragment;
+import com.softwareengineering.aasfalis.fragments.ProfileFragment;
 
 public class MainActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener,
@@ -122,6 +123,7 @@ public class MainActivity extends AppCompatActivity implements
             super.onBackPressed();
         }
         navigationView.getMenu().getItem(0).setChecked(false);
+        showActionBar();
     }
 
     @Override
@@ -161,7 +163,13 @@ public class MainActivity extends AppCompatActivity implements
 
         switch (id) {
             case R.id.nav_profile:
-                fragmentClass = LoginFragment.class;
+                if (LoginFragment.loggedIn) {
+                    fragmentClass = ProfileFragment.class;
+                    hideActionBar();
+                    drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                } else {
+                    fragmentClass = LoginFragment.class;
+                }
                 break;
             case R.id.nav_friends:
                 break;
@@ -181,7 +189,7 @@ public class MainActivity extends AppCompatActivity implements
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.replace(R.id.map, fragment);
+        transaction.replace(R.id.map, fragment, "Fragment");
         transaction.addToBackStack(null);
         transaction.commit();
 
@@ -192,6 +200,8 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        ProfileFragment profileFragment = (ProfileFragment) getSupportFragmentManager().findFragmentByTag("Fragment");
+
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             new Thread(new Runnable() {
@@ -202,22 +212,23 @@ public class MainActivity extends AppCompatActivity implements
             }).start();
 
             mMap.setMyLocationEnabled(true);
+
         }
-
         googleMap.getUiSettings().setMapToolbarEnabled(false);
+        //if (profileFragment != null && !profileFragment.isVisible()) {
+            mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                @Override
+                public void onMapClick(LatLng latLng) {
+                    ActionBar actionBar = getSupportActionBar();
+                    if (actionBar.isShowing()) {
+                        hideActionBar();
+                    } else {
+                        showActionBar();
 
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng latLng) {
-                ActionBar actionBar = getSupportActionBar();
-                if (actionBar.isShowing()) {
-                    hideActionBar();
-                } else {
-                    showActionBar();
-
+                    }
                 }
-            }
-        });
+            });
+        //}
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -278,7 +289,8 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         switch (requestCode) {
             case REQUEST_USER_LOCATION_CODE:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
