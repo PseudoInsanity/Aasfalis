@@ -165,10 +165,11 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="80dp"
         android:layout_marginTop="76dp"
+        android:clickable="true"
         android:text="Forgot password?"
         android:textColor="#ADD8E6"
-        android:clickable="true"
         android:textSize="11sp"
+        android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/editTextPassword" />
 

@@ -21,6 +21,7 @@ import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -129,16 +130,23 @@ public class LoginFragment extends Fragment {
             }
         });
 
+        forgotPass.setOnHoverListener(new View.OnHoverListener() {
+            @Override
+            public boolean onHover(View view, MotionEvent motionEvent) {
+                return true;
+            }
+        });
         forgotPass.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 final EditText editText = new EditText(view.getContext());
-                editText.getBackground().setColorFilter(getResources().getColor(R.color.colorPrimary),
+                editText.getBackground().setColorFilter(getResources().getColor(R.color.colorAccent), //linexcnkj
                         PorterDuff.Mode.SRC_ATOP);
-                editText.setTextColor(getResources().getColor(R.color.colorPrimary));
-                editText.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
-                AlertDialog dialog = new AlertDialog.Builder(view.getContext(), R.style.Theme_AppCompat_Dialog_Alert)
-                        .setTitle("Enter Email")
+                editText.setTextColor(getResources().getColor(R.color.colorAccent));
+              //  editText.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+                AlertDialog dialog = new AlertDialog.Builder(view.getContext(), R.style.com_facebook_auth_dialog_instructions_textview)
+                        .setTitle("Please enter your email address")
                         .setView(editText)
                         .setPositiveButton("Restore Password", new DialogInterface.OnClickListener() {
                             @Override
@@ -153,7 +161,7 @@ public class LoginFragment extends Fragment {
                                                     @Override
                                                     public void onComplete(@NonNull Task<Void> task) {
                                                         if (task.isSuccessful()) {
-                                                            new AlertDialog.Builder(getContext())
+                                                            new AlertDialog.Builder(getContext(),R.style.com_facebook_auth_dialog)
                                                                     .setTitle("Email Sent!")
                                                                     .setMessage("Please follow the link in your email")
                                                                     // A null listener allows the button to dismiss the dialog and take no further action.
