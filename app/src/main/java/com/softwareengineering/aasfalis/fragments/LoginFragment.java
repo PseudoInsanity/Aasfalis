@@ -61,7 +61,7 @@ public class LoginFragment extends Fragment {
     private static final int REQUEST_USER_LOCATION_CODE = 99;
     private FirebaseAuth firebaseAuth;
 
-    CallbackManager callbackManager;
+    private CallbackManager callbackManager;
 
     private EditText username, password;
     private Button loginButton;
