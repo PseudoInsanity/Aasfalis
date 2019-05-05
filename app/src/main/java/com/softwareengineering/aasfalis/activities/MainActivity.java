@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements
         OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        LocationListener {
+        LocationListener, View.OnClickListener {
 
     private GoogleMap mMap;
     private GoogleApiClient googleApiClient;
@@ -71,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements
     private Toolbar toolbar;
     private ValueAnimator mVaActionBar;
     private NavigationView navigationView;
+    private FloatingActionButton fab;
 
     // holds the original Toolbar height.
     // this can also be obtained via (an)other method(s)
@@ -86,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements
         setSupportActionBar(toolbar);
 
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -111,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-
+        showActionBar();
     }
 
     @Override
@@ -124,6 +125,9 @@ public class MainActivity extends AppCompatActivity implements
         }
         navigationView.getMenu().getItem(0).setChecked(false);
         showActionBar();
+        if (fab.isOrWillBeHidden()) {
+            fab.show();
+        }
     }
 
     @Override
@@ -169,6 +173,8 @@ public class MainActivity extends AppCompatActivity implements
                     drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                 } else {
                     fragmentClass = LoginFragment.class;
+                    hideActionBar();
+                    drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                 }
                 break;
             case R.id.nav_friends:
@@ -187,12 +193,14 @@ public class MainActivity extends AppCompatActivity implements
             e.printStackTrace();
         }
 
+        fab.hide();
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.replace(R.id.map, fragment, "Fragment");
         transaction.addToBackStack(null);
         transaction.commit();
 
+        //mMap.setOnMapClickListener(null);
         navigationView.getMenu().getItem(0).setChecked(true);
         drawer.closeDrawer(GravityCompat.START);
     }
@@ -200,6 +208,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        // mMap.setOnMapClickListener((GoogleMap.OnMapClickListener) this);
         ProfileFragment profileFragment = (ProfileFragment) getSupportFragmentManager().findFragmentByTag("Fragment");
 
 
@@ -216,18 +225,7 @@ public class MainActivity extends AppCompatActivity implements
         }
         googleMap.getUiSettings().setMapToolbarEnabled(false);
         //if (profileFragment != null && !profileFragment.isVisible()) {
-            mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-                @Override
-                public void onMapClick(LatLng latLng) {
-                    ActionBar actionBar = getSupportActionBar();
-                    if (actionBar.isShowing()) {
-                        hideActionBar();
-                    } else {
-                        showActionBar();
 
-                    }
-                }
-            });
         //}
     }
 
@@ -405,5 +403,25 @@ public class MainActivity extends AppCompatActivity implements
         drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
     }
 
+
+    @Override
+    public void onClick(View view) {
+        addListener();
+    }
+
+    private void addListener() {
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                ActionBar actionBar = getSupportActionBar();
+                if (actionBar.isShowing()) {
+                    hideActionBar();
+                } else {
+                    showActionBar();
+
+                }
+            }
+        });
+    }
 
 }

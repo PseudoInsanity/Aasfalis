@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -68,6 +69,7 @@ public class LoginFragment extends Fragment {
     private LoginButton fbLoginButton;
     private TextView txtName, txtEmail;
     private AppCompatCheckBox checkBox;
+    private FloatingActionButton fab;
 
     public static boolean loggedIn;
 
@@ -85,6 +87,7 @@ public class LoginFragment extends Fragment {
         username = inflate.findViewById(R.id.editTextUsername);
         password = inflate.findViewById(R.id.editTextPassword);
         checkBox = inflate.findViewById(R.id.checkbox);
+        fab = inflate.findViewById(R.id.fab);
 
         callbackManager = CallbackManager.Factory.create();
 
@@ -126,6 +129,10 @@ public class LoginFragment extends Fragment {
 
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 fragmentManager.popBackStack();
+
+              //  if (fab.isOrWillBeHidden()) {
+                 //   fab.show();
+                //}
 
             }
 
