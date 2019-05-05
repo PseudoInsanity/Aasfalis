@@ -76,6 +76,7 @@
         android:text="SIGN IN"
         android:textColor="@android:color/white"
         android:textSize="18sp"
+
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.502"
@@ -154,6 +155,7 @@
         android:clickable="true"
         android:text="Sign up!"
         android:textColor="#ADD8E6"
+        android:textStyle="bold|italic"
         app:layout_constraintBottom_toTopOf="@+id/login_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/loginButton"
@@ -167,10 +169,12 @@
         android:layout_marginTop="76dp"
         android:clickable="true"
         android:text="Forgot password?"
+        android:textAllCaps="true"
         android:textColor="#ADD8E6"
         android:textSize="11sp"
-        android:textStyle="bold"
+        android:textStyle="normal|bold|italic"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/editTextPassword" />
+        app:layout_constraintTop_toTopOf="@+id/editTextPassword"
+        tools:focusable="auto" />
 
 </android.support.constraint.ConstraintLayout>

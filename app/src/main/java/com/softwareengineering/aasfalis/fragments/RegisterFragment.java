@@ -1,5 +1,6 @@
 package com.softwareengineering.aasfalis.fragments;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -28,7 +29,7 @@ import static android.content.ContentValues.TAG;
 
 public class RegisterFragment extends Fragment {
     private Button registerBtn, backFab;
-    private EditText emailTxt, passwordTxt;
+    private EditText emailTxt, passwordTxt, confirmTxt, nameTxt;
     private FirebaseAuth authUser;
 
     @Override
@@ -38,6 +39,8 @@ public class RegisterFragment extends Fragment {
         registerBtn = view.findViewById(R.id.registerBtn);
         emailTxt = view.findViewById(R.id.emailTxt);
         passwordTxt = view.findViewById(R.id.passwordTxt);
+        confirmTxt = view.findViewById(R.id.confirmTxt);
+        nameTxt = view.findViewById(R.id.nameTxt);
 
         authUser = FirebaseAuth.getInstance();
 
@@ -48,19 +51,34 @@ public class RegisterFragment extends Fragment {
 
                 String eMail = emailTxt.getText().toString();
                 String passw = passwordTxt.getText().toString();
+                String confirmPass = confirmTxt.getText().toString();
+                String fullName = nameTxt.getText().toString();
 
-                if (isEmailValid(eMail) && isPasswordValid(passw)) {
+                if (isEmailValid(eMail) && isPasswordValid(passw) && passw.equals(confirmPass) && !fullName.isEmpty()) {
                     createAccount(eMail, passw);
+                } else if (!passw.equals(confirmPass)) {
+
+                    new AlertDialog.Builder(getContext(), R.style.com_facebook_auth_dialog)
+                            .setTitle("passwords are not matching!")
+                            .setNegativeButton(android.R.string.no, null)
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
+                } else if (eMail.isEmpty() || passw.isEmpty() || confirmPass.isEmpty() || fullName.isEmpty()) {
+
+                    new AlertDialog.Builder(getContext(), R.style.com_facebook_auth_dialog)
+                            .setTitle("Make sure to fill in all the tabs!")
+                            .setNegativeButton(android.R.string.no, null)
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
                 }
             }
         });
 
 
-
-       return view;
+        return view;
     }
 
-    private void createAccount (String mail, String password){
+    private void createAccount(String mail, String password) {
 
         authUser.createUserWithEmailAndPassword(mail, password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
@@ -98,6 +116,7 @@ public class RegisterFragment extends Fragment {
     private boolean isPasswordValid(String password) {
         return password.matches("[0-9a-zA-Z]{6,16}");
     }
+
 
     @Override
     public void onStart() {
