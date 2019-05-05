@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements
         OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        LocationListener, View.OnClickListener {
+        LocationListener {
 
     private GoogleMap mMap;
     private GoogleApiClient googleApiClient;
@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        showActionBar();
+
     }
 
     @Override
@@ -171,6 +171,7 @@ public class MainActivity extends AppCompatActivity implements
                     fragmentClass = ProfileFragment.class;
                     hideActionBar();
                     drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                    mMap.setOnMapClickListener(null);
                 } else {
                     fragmentClass = LoginFragment.class;
                     hideActionBar();
@@ -224,9 +225,8 @@ public class MainActivity extends AppCompatActivity implements
 
         }
         googleMap.getUiSettings().setMapToolbarEnabled(false);
-        //if (profileFragment != null && !profileFragment.isVisible()) {
+        addListener();
 
-        //}
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -326,7 +326,6 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
-
     private void showActionBar() {
         if (mVaActionBar != null && mVaActionBar.isRunning()) {
             // we are already animating a transition - block here
@@ -403,11 +402,6 @@ public class MainActivity extends AppCompatActivity implements
         drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
     }
 
-
-    @Override
-    public void onClick(View view) {
-        addListener();
-    }
 
     private void addListener() {
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {

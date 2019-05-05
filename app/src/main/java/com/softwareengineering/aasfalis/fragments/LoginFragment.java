@@ -72,7 +72,7 @@ public class LoginFragment extends Fragment {
     private EditText username, password;
     private Button loginButton;
     private LoginButton fbLoginButton;
-    private TextView txtName, txtEmail, signup,forgotPass;
+    private TextView txtName, txtEmail, signup, forgotPass;
     private AppCompatCheckBox checkBox;
     private FloatingActionButton fab;
 
@@ -109,11 +109,10 @@ public class LoginFragment extends Fragment {
         checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean value) {
-                if(value){
+                if (value) {
                     //show password
                     password.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
-                }
-                else {
+                } else {
                     //hide password
                     password.setTransformationMethod(PasswordTransformationMethod.getInstance());
                 }
@@ -147,7 +146,7 @@ public class LoginFragment extends Fragment {
                 editText.getBackground().setColorFilter(getResources().getColor(R.color.colorAccent), //linexcnkj
                         PorterDuff.Mode.SRC_ATOP);
                 editText.setTextColor(getResources().getColor(R.color.colorAccent));
-              //  editText.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+                //  editText.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
                 AlertDialog dialog = new AlertDialog.Builder(view.getContext(), R.style.com_facebook_auth_dialog_instructions_textview)
                         .setTitle("Please enter your email address")
                         .setView(editText)
@@ -157,25 +156,24 @@ public class LoginFragment extends Fragment {
 
                                 firebaseAuth = FirebaseAuth.getInstance();
 
-                                    String emailAddress = editText.getText().toString();
-                                    if(!emailAddress.isEmpty()){
-                                        firebaseAuth.sendPasswordResetEmail(emailAddress)
-                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                    @Override
-                                                    public void onComplete(@NonNull Task<Void> task) {
-                                                        if (task.isSuccessful()) {
-                                                            new AlertDialog.Builder(getContext(),R.style.com_facebook_auth_dialog)
-                                                                    .setTitle("Email Sent!")
-                                                                    .setMessage("Please follow the link in your email")
-                                                                    // A null listener allows the button to dismiss the dialog and take no further action.
-                                                                    .setNegativeButton(android.R.string.no, null)
-                                                                    .setIcon(android.R.drawable.ic_dialog_info)
-                                                                    .show();
-                                                        }
+                                String emailAddress = editText.getText().toString();
+                                if (!emailAddress.isEmpty()) {
+                                    firebaseAuth.sendPasswordResetEmail(emailAddress)
+                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task) {
+                                                    if (task.isSuccessful()) {
+                                                        new AlertDialog.Builder(getContext(), R.style.com_facebook_auth_dialog)
+                                                                .setTitle("Email Sent!")
+                                                                .setMessage("Please follow the link in your email")
+                                                                // A null listener allows the button to dismiss the dialog and take no further action.
+                                                                .setNegativeButton(android.R.string.no, null)
+                                                                .setIcon(android.R.drawable.ic_dialog_info)
+                                                                .show();
                                                     }
-                                                });
-                                    }
-
+                                                }
+                                            });
+                                }
 
 
                             }
@@ -203,8 +201,8 @@ public class LoginFragment extends Fragment {
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 fragmentManager.popBackStack();
 
-              //  if (fab.isOrWillBeHidden()) {
-                 //   fab.show();
+                //  if (fab.isOrWillBeHidden()) {
+                //   fab.show();
                 //}
 
             }
@@ -255,6 +253,7 @@ public class LoginFragment extends Fragment {
     };
 
     private void loginUser(String mail, String password, final View v) {
+
         firebaseAuth.signInWithEmailAndPassword(mail, password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
 
@@ -266,6 +265,7 @@ public class LoginFragment extends Fragment {
                             FirebaseUser user = firebaseAuth.getCurrentUser();
 
                             if (user.isEmailVerified()) {
+                                loggedIn = true;
                                 Intent intent = new Intent(v.getContext(), MainActivity.class);
                                 startActivity(intent);
 
