@@ -186,6 +186,7 @@ public class LoginFragment extends Fragment {
                             FirebaseUser user = firebaseAuth.getCurrentUser();
 
                             if (user.isEmailVerified()) {
+
                                 Intent intent = new Intent(v.getContext(), MainActivity.class);
                                 startActivity(intent);
 
