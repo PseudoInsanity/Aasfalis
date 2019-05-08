@@ -8,6 +8,7 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,7 +30,7 @@ import static android.content.ContentValues.TAG;
 
 public class RegisterFragment extends Fragment {
     private Button registerBtn, backFab;
-    private EditText emailTxt, passwordTxt, confirmTxt, nameTxt;
+    private EditText emailTxt, passwordTxt, confirmTxt, firstNameTxt, lastNameTxt;
     private FirebaseAuth authUser;
 
     @Override
@@ -40,9 +41,12 @@ public class RegisterFragment extends Fragment {
         emailTxt = view.findViewById(R.id.emailTxt);
         passwordTxt = view.findViewById(R.id.passwordTxt);
         confirmTxt = view.findViewById(R.id.confirmTxt);
-        nameTxt = view.findViewById(R.id.nameTxt);
+        firstNameTxt = view.findViewById(R.id.firstNameTxt);
+        lastNameTxt = view.findViewById(R.id.lastNameTxt);
 
         authUser = FirebaseAuth.getInstance();
+
+        passwordTxt.setTransformationMethod(PasswordTransformationMethod.getInstance());
 
 
         registerBtn.setOnClickListener(new View.OnClickListener() {
@@ -52,9 +56,11 @@ public class RegisterFragment extends Fragment {
                 String eMail = emailTxt.getText().toString();
                 String passw = passwordTxt.getText().toString();
                 String confirmPass = confirmTxt.getText().toString();
-                String fullName = nameTxt.getText().toString();
+                String firstName = firstNameTxt.getText().toString();
+                String lastName = lastNameTxt.getText().toString();
 
-                if (isEmailValid(eMail) && isPasswordValid(passw) && passw.equals(confirmPass) && !fullName.isEmpty()) {
+                if (isEmailValid(eMail) && isPasswordValid(passw) && passw.equals(confirmPass)
+                        && !firstName.isEmpty() && !lastName.isEmpty()) {
                     createAccount(eMail, passw);
                 } else if (!passw.equals(confirmPass)) {
 
@@ -63,10 +69,18 @@ public class RegisterFragment extends Fragment {
                             .setNegativeButton(android.R.string.no, null)
                             .setIcon(android.R.drawable.ic_dialog_alert)
                             .show();
-                } else if (eMail.isEmpty() || passw.isEmpty() || confirmPass.isEmpty() || fullName.isEmpty()) {
+                } else if (eMail.isEmpty() || passw.isEmpty() || confirmPass.isEmpty()
+                        || firstName.isEmpty() || lastName.isEmpty()) {
 
                     new AlertDialog.Builder(getContext(), R.style.com_facebook_auth_dialog)
                             .setTitle("Make sure to fill in all the tabs!")
+                            .setNegativeButton(android.R.string.no, null)
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
+                } else if (!isPasswordValid(passw)){
+
+                    new AlertDialog.Builder(getContext(), R.style.com_facebook_auth_dialog)
+                            .setTitle("Password needs to be at least 6 character long!")
                             .setNegativeButton(android.R.string.no, null)
                             .setIcon(android.R.drawable.ic_dialog_alert)
                             .show();

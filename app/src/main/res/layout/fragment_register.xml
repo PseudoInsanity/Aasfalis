@@ -5,51 +5,80 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:background="@color/colorPrimaryDark"
+
     android:layout_height="match_parent">
 
     <EditText
-        android:id="@+id/nameTxt"
-        android:layout_width="375dp"
-        android:layout_height="80dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="20dp"
-        android:hint="Full Name"
+        android:id="@+id/firstNameTxt"
+        android:layout_width="165dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="60dp"
+        android:layout_marginEnd="228dp"
+        android:background="@drawable/my_edit_text"
+        android:hint="   First name"
         android:textAlignment="textStart"
+        android:textColorHint="#d9d9d9"
+        android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView5" />
+
+    <EditText
+        android:id="@+id/lastNameTxt"
+        android:layout_width="165dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="60dp"
+        android:layout_marginEnd="20dp"
+        android:background="@drawable/my_edit_text"
+        android:hint="   Last name"
+        android:textAlignment="textStart"
+        android:textColorHint="#d9d9d9"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/firstNameTxt"
         app:layout_constraintTop_toBottomOf="@+id/textView5" />
 
     <EditText
         android:id="@+id/passwordTxt"
         android:layout_width="375dp"
-        android:layout_height="80dp"
-        android:layout_marginTop="24dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="36dp"
         android:layout_marginEnd="20dp"
-        android:hint="Password"
+        android:background="@drawable/my_edit_text"
+        android:hint="   Password"
+        android:textAlignment="textStart"
+        android:textColorHint="#d9d9d9"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/emailTxt" />
 
     <EditText
         android:id="@+id/confirmTxt"
         android:layout_width="375dp"
-        android:layout_height="80dp"
-        android:layout_marginTop="4dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="20dp"
-        android:hint="Confirm password"
+        android:background="@drawable/my_edit_text"
+        android:hint="   Confirm password"
+        android:textAlignment="textStart"
+        android:textColorHint="#d9d9d9"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/passwordTxt" />
 
     <Button
         android:id="@+id/registerBtn"
-        android:layout_width="300dp"
-        android:layout_height="59dp"
+        android:layout_width="309dp"
+        android:layout_height="70dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="56dp"
-        android:layout_marginBottom="180dp"
+        android:layout_marginEnd="48dp"
+        android:layout_marginBottom="136dp"
         android:background="@drawable/my_button"
-        android:backgroundTint="#c6c639"
+        android:backgroundTint="@color/buttonOrange"
+        android:fontFamily="sans-serif-condensed"
         android:text="Get Started"
         android:textAllCaps="false"
-        android:textSize="20sp"
+        android:textColor="#ffffff"
+        android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -59,13 +88,15 @@
     <EditText
         android:id="@+id/emailTxt"
         android:layout_width="375dp"
-        android:layout_height="80dp"
-        android:layout_marginTop="4dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="20dp"
-        android:hint="Email"
+        android:background="@drawable/my_edit_text"
+        android:hint="   Email"
         android:textAlignment="textStart"
+        android:textColorHint="#d9d9d9"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/nameTxt" />
+        app:layout_constraintTop_toBottomOf="@+id/firstNameTxt" />
 
     <TextView
         android:id="@+id/textView5"
@@ -75,17 +106,38 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        android:fontFamily="sans-serif-light"
+        android:fontFamily="sans-serif-condensed-light"
 
-        android:text="SIGN UP WITH EMAIL"
-        android:textColor="#cceeff"
-        android:textSize="24sp"
+        android:text="join with your email"
+        android:textAllCaps="true"
+        android:textColor="#DEEBDC "
+        android:textSize="30sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.166"
+        app:layout_constraintHorizontal_bias="0.078"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.043" />
+        app:layout_constraintVertical_bias="0.108" />
+
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="29dp"
+        android:layout_height="26dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="28dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/passwordTxt"
+        app:srcCompat="@drawable/password_white" />
+
+    <ImageView
+        android:id="@+id/imageView4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="32dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/emailTxt"
+        app:srcCompat="@drawable/email_white" />
 
 </android.support.constraint.ConstraintLayout>
