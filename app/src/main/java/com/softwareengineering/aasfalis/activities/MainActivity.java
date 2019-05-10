@@ -5,6 +5,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.content.pm.PackageManager;
+import android.graphics.Rect;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -54,6 +55,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.softwareengineering.aasfalis.R;
 import com.softwareengineering.aasfalis.fragments.LoginFragment;
 import com.softwareengineering.aasfalis.fragments.ProfileFragment;
+import com.softwareengineering.aasfalis.fragments.RegisterFragment;
 
 public class MainActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener,
@@ -117,6 +119,9 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onBackPressed() {
+        LoginFragment loginFragment = (LoginFragment) getSupportFragmentManager().findFragmentByTag("LoginFragment");
+        ProfileFragment profileFragment = (ProfileFragment) getSupportFragmentManager().findFragmentByTag("ProfileFragment");
+        //View fragmentRootView = loginFragment.getView();
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
@@ -124,8 +129,12 @@ public class MainActivity extends AppCompatActivity implements
             super.onBackPressed();
         }
         navigationView.getMenu().getItem(0).setChecked(false);
-        showActionBar();
-        if (fab.isOrWillBeHidden()) {
+
+        if (fab.isOrWillBeHidden() && loginFragment != null && !loginFragment.isVisible()) {
+            fab.show();
+            showActionBar();
+        } else if (profileFragment != null && profileFragment.isVisible()) {
+            showActionBar();
             fab.show();
         }
     }
@@ -164,16 +173,19 @@ public class MainActivity extends AppCompatActivity implements
         int id = item.getItemId();
         Fragment fragment = null;
         Class fragmentClass = null;
+        String tag = null;
 
         switch (id) {
             case R.id.nav_profile:
                 if (LoginFragment.loggedIn) {
                     fragmentClass = ProfileFragment.class;
+                    tag = "ProfileFragment";
                     hideActionBar();
                     drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                     mMap.setOnMapClickListener(null);
                 } else {
                     fragmentClass = LoginFragment.class;
+                    tag = "LoginFragment";
                     hideActionBar();
                     drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                 }
@@ -197,7 +209,7 @@ public class MainActivity extends AppCompatActivity implements
         fab.hide();
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.replace(R.id.map, fragment, "Fragment");
+        transaction.replace(R.id.map, fragment, tag);
         transaction.addToBackStack(null);
         transaction.commit();
 
@@ -416,6 +428,28 @@ public class MainActivity extends AppCompatActivity implements
                 }
             }
         });
+    }
+
+    private Fragment checkCurrentFragment() {
+        Fragment fragment = null;
+        Class fragmentClass = null;
+        String tag = null;
+
+        switch (tag) {
+            case "ProfileFragment":
+                fragmentClass = ProfileFragment.class;
+                break;
+            case "LoginFragment":
+                break;
+        }
+
+        try {
+            fragment = (Fragment) fragmentClass.newInstance();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return fragment;
     }
 
 }

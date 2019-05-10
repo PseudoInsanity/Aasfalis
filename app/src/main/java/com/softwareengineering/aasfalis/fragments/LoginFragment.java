@@ -126,7 +126,7 @@ public class LoginFragment extends Fragment {
                 Fragment fragment = new RegisterFragment();
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
-                transaction.replace(R.id.map, fragment);
+                transaction.replace(R.id.map, fragment, "RegisterFragment");
                 transaction.addToBackStack(null);
                 transaction.commit();
             }
