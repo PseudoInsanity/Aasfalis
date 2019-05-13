@@ -11,11 +11,8 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -58,6 +55,7 @@ public class MainActivity extends AppCompatActivity implements
     private Location lastLocation;
     private Marker currentUserLocationMarker;
     private Context context;
+    private Database database;
 
 //    private ActionBar actionBar = getSupportActionBar();
 
@@ -75,6 +73,12 @@ public class MainActivity extends AppCompatActivity implements
         context = this;
         FirebaseApp.initializeApp(context);
         db = FirebaseFirestore.getInstance();
+
+        database = new Database();
+        //addUser should use the ID from user in Firebase
+        //database.addUser("userID");
+        //database.updateData();
+        //database.readData();
 
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
