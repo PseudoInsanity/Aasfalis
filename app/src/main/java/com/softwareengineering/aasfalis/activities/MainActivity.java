@@ -99,11 +99,11 @@ public class MainActivity extends AppCompatActivity implements
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(view -> openDirectionsFragment());
 
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
@@ -115,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements
 
 
         checkUserLocationPermission();
+
         MapFragment mapFragment = (MapFragment) getFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -138,7 +139,7 @@ public class MainActivity extends AppCompatActivity implements
             super.onBackPressed();
         }
         navigationView.getMenu().getItem(0).setChecked(false);
-
+        addListener();
        /* if (fab.isOrWillBeHidden() && loginFragment != null && !loginFragment.isVisible()) {
             fab.show();
             showActionBar();
@@ -224,7 +225,7 @@ public class MainActivity extends AppCompatActivity implements
         transaction.addToBackStack(null);
         transaction.commit();
 
-        //mMap.setOnMapClickListener(null);
+        mMap.setOnMapClickListener(null);
         navigationView.getMenu().getItem(0).setChecked(true);
         drawer.closeDrawer(GravityCompat.START);
     }
@@ -432,40 +433,16 @@ public class MainActivity extends AppCompatActivity implements
         });
     }
 
-    private Fragment checkCurrentFragment() {
-        Fragment fragment = null;
-        Class fragmentClass = null;
-        String tag = null;
-
-        switch (tag) {
-            case "ProfileFragment":
-                fragmentClass = ProfileFragment.class;
-                break;
-            case "LoginFragment":
-                break;
-        }
-
-        try {
-            fragment = (Fragment) fragmentClass.newInstance();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return fragment;
-    }
-
     private void openDirectionsFragment() {
         Fragment fragment = new DirectionsFragment();
         String tag = "DirectionsFragment";
 
-        if (!fragment.getTag().equals("DirectionsFragment") && fragment != null) {
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            FragmentTransaction transaction = fragmentManager.beginTransaction();
-            transaction.replace(R.id.map, fragment, tag);
-            transaction.addToBackStack(null);
-            transaction.commit();
-        }
-        //mMap.setOnMapClickListener(null);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.map, fragment, tag);
+        transaction.addToBackStack(null);
+        transaction.commit();
+        mMap.setOnMapClickListener(null);
         hideActionBar();
     }
 
