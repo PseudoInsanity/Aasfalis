@@ -52,7 +52,12 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.DirectionsApiRequest;
+import com.google.maps.GeoApiContext;
+import com.google.maps.PendingResult;
+import com.google.maps.model.DirectionsResult;
 import com.softwareengineering.aasfalis.R;
+import com.softwareengineering.aasfalis.fragments.DirectionsFragment;
 import com.softwareengineering.aasfalis.fragments.LoginFragment;
 import com.softwareengineering.aasfalis.fragments.ProfileFragment;
 import com.softwareengineering.aasfalis.fragments.RegisterFragment;
@@ -74,12 +79,18 @@ public class MainActivity extends AppCompatActivity implements
     private ValueAnimator mVaActionBar;
     private NavigationView navigationView;
     private FloatingActionButton fab;
+    private GeoApiContext geoApiContext;
 
     // holds the original Toolbar height.
     // this can also be obtained via (an)other method(s)
     private int mToolbarHeight, mAnimDuration = 600/* milliseconds */;
 
     private static final int REQUEST_USER_LOCATION_CODE = 99;
+
+    //Fragments
+    private LoginFragment loginFragment = (LoginFragment) getSupportFragmentManager().findFragmentByTag("LoginFragment");
+    private ProfileFragment profileFragment = (ProfileFragment) getSupportFragmentManager().findFragmentByTag("ProfileFragment");
+    private DirectionsFragment directionsFragment = (DirectionsFragment) getSupportFragmentManager().findFragmentByTag("DirectionsFragment");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,13 +101,7 @@ public class MainActivity extends AppCompatActivity implements
 
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        fab.setOnClickListener(view -> openDirectionsFragment());
 
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -119,24 +124,30 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onBackPressed() {
-        LoginFragment loginFragment = (LoginFragment) getSupportFragmentManager().findFragmentByTag("LoginFragment");
-        ProfileFragment profileFragment = (ProfileFragment) getSupportFragmentManager().findFragmentByTag("ProfileFragment");
+        int backStackEntryCount = getSupportFragmentManager().getBackStackEntryCount();
+
         //View fragmentRootView = loginFragment.getView();
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
+        } else if (backStackEntryCount == 1) {
+            showActionBar();
+            fab.show();
+            super.onBackPressed();
         } else {
             super.onBackPressed();
         }
         navigationView.getMenu().getItem(0).setChecked(false);
 
-        if (fab.isOrWillBeHidden() && loginFragment != null && !loginFragment.isVisible()) {
+       /* if (fab.isOrWillBeHidden() && loginFragment != null && !loginFragment.isVisible()) {
             fab.show();
             showActionBar();
         } else if (profileFragment != null && profileFragment.isVisible()) {
             showActionBar();
             fab.show();
-        }
+        } else if (directionsFragment != null && directionsFragment.isVisible()) {
+            showActionBar();
+        } */
     }
 
     @Override
@@ -222,16 +233,9 @@ public class MainActivity extends AppCompatActivity implements
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         // mMap.setOnMapClickListener((GoogleMap.OnMapClickListener) this);
-        ProfileFragment profileFragment = (ProfileFragment) getSupportFragmentManager().findFragmentByTag("Fragment");
-
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    buildGoogleApiClient();
-                }
-            }).start();
+            new Thread(() -> buildGoogleApiClient()).start();
 
             mMap.setMyLocationEnabled(true);
 
@@ -272,7 +276,7 @@ public class MainActivity extends AppCompatActivity implements
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
 
         CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(latLng)      // Sets the center of the map to location user
+                .target(latLng)             // Sets the center of the map to location user
                 .zoom(17)                   // Sets the zoom
                 .bearing(90)                // Sets the orientation of the camera to east
                 .tilt(40)                   // Sets the tilt of the camera to 30 degrees
@@ -337,6 +341,7 @@ public class MainActivity extends AppCompatActivity implements
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
     }
+
 
     private void showActionBar() {
         if (mVaActionBar != null && mVaActionBar.isRunning()) {
@@ -416,16 +421,13 @@ public class MainActivity extends AppCompatActivity implements
 
 
     private void addListener() {
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng latLng) {
-                ActionBar actionBar = getSupportActionBar();
-                if (actionBar.isShowing()) {
-                    hideActionBar();
-                } else {
-                    showActionBar();
+        mMap.setOnMapClickListener(latLng -> {
+            ActionBar actionBar = getSupportActionBar();
+            if (actionBar.isShowing()) {
+                hideActionBar();
+            } else {
+                showActionBar();
 
-                }
             }
         });
     }
@@ -452,4 +454,46 @@ public class MainActivity extends AppCompatActivity implements
         return fragment;
     }
 
+    private void openDirectionsFragment() {
+        Fragment fragment = new DirectionsFragment();
+        String tag = "DirectionsFragment";
+
+        if (!fragment.getTag().equals("DirectionsFragment") && fragment != null) {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction transaction = fragmentManager.beginTransaction();
+            transaction.replace(R.id.map, fragment, tag);
+            transaction.addToBackStack(null);
+            transaction.commit();
+        }
+        //mMap.setOnMapClickListener(null);
+        hideActionBar();
+    }
+
+    private void calculateDirections(Marker marker) {
+        Log.d("Edmir", "calculateDirections: calculating directions.");
+
+        com.google.maps.model.LatLng destination = new com.google.maps.model.LatLng(
+                marker.getPosition().latitude,
+                marker.getPosition().longitude
+        );
+        DirectionsApiRequest directions = new DirectionsApiRequest(geoApiContext);
+
+        directions.alternatives(true);
+        directions.origin(new com.google.maps.model.LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()));
+
+        Log.d("Edmir", "calculateDirections: destination: " + destination.toString());
+        directions.destination(destination).setCallback(new PendingResult.Callback<DirectionsResult>() {
+            @Override
+            public void onResult(DirectionsResult result) {
+                Log.d("Edmir", "onResult: routes: " + result.routes[0].toString());
+                Log.d("Edmir", "onResult: geocodedWayPoints: " + result.geocodedWaypoints[0].toString());
+            }
+
+            @Override
+            public void onFailure(Throwable e) {
+                Log.e("Edmir", "onFailure: " + e.getMessage());
+
+            }
+        });
+    }
 }
