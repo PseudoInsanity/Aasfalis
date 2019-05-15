@@ -8,20 +8,28 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.maps.GeoApiContext;
 import com.softwareengineering.aasfalis.R;
 
-import de.hdodenhof.circleimageview.CircleImageView;
 
-public class ProfileFragment extends Fragment {
+
+
+public class DirectionsFragment extends Fragment {
+
+    private GeoApiContext geoApiContext;
 
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        final View inflate = inflater.inflate(R.layout.fragment_profile, container, false);
+        final View inflate = inflater.inflate(R.layout.fragment_directions, container, false);
 
         return inflate;
     }
+
+
+
+
 
 
 }

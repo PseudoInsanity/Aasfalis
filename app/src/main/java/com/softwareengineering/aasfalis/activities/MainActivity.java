@@ -5,9 +5,9 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.content.pm.PackageManager;
+import android.graphics.Rect;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
@@ -15,20 +15,27 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.Toast;
+import android.os.Build;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -39,15 +46,21 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.DirectionsApiRequest;
+import com.google.maps.GeoApiContext;
+import com.google.maps.PendingResult;
+import com.google.maps.model.DirectionsResult;
 import com.softwareengineering.aasfalis.R;
+import com.softwareengineering.aasfalis.fragments.DirectionsFragment;
 import com.softwareengineering.aasfalis.fragments.LoginFragment;
 import com.softwareengineering.aasfalis.fragments.ProfileFragment;
-import com.softwareengineering.aasfalis.client.Client;
+import com.softwareengineering.aasfalis.fragments.RegisterFragment;
 
 public class MainActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener,
@@ -65,7 +78,8 @@ public class MainActivity extends AppCompatActivity implements
     private Toolbar toolbar;
     private ValueAnimator mVaActionBar;
     private NavigationView navigationView;
-    private Client client;
+    private FloatingActionButton fab;
+    private GeoApiContext geoApiContext;
 
     // holds the original Toolbar height.
     // this can also be obtained via (an)other method(s)
@@ -73,26 +87,23 @@ public class MainActivity extends AppCompatActivity implements
 
     private static final int REQUEST_USER_LOCATION_CODE = 99;
 
+    //Fragments
+    private LoginFragment loginFragment = (LoginFragment) getSupportFragmentManager().findFragmentByTag("LoginFragment");
+    private ProfileFragment profileFragment = (ProfileFragment) getSupportFragmentManager().findFragmentByTag("ProfileFragment");
+    private DirectionsFragment directionsFragment = (DirectionsFragment) getSupportFragmentManager().findFragmentByTag("DirectionsFragment");
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().permitNetwork().build());
-        client = new Client(this);
 
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(view -> openDirectionsFragment());
 
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
@@ -104,30 +115,40 @@ public class MainActivity extends AppCompatActivity implements
 
 
         checkUserLocationPermission();
+
         MapFragment mapFragment = (MapFragment) getFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-
-                client.execute();
-            }
-        });
     }
 
     @Override
     public void onBackPressed() {
+        int backStackEntryCount = getSupportFragmentManager().getBackStackEntryCount();
+
+        //View fragmentRootView = loginFragment.getView();
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
+        } else if (backStackEntryCount == 1) {
+            showActionBar();
+            fab.show();
+            super.onBackPressed();
         } else {
             super.onBackPressed();
         }
         navigationView.getMenu().getItem(0).setChecked(false);
-        showActionBar();
+        addListener();
+       /* if (fab.isOrWillBeHidden() && loginFragment != null && !loginFragment.isVisible()) {
+            fab.show();
+            showActionBar();
+        } else if (profileFragment != null && profileFragment.isVisible()) {
+            showActionBar();
+            fab.show();
+        } else if (directionsFragment != null && directionsFragment.isVisible()) {
+            showActionBar();
+        } */
     }
 
     @Override
@@ -164,15 +185,21 @@ public class MainActivity extends AppCompatActivity implements
         int id = item.getItemId();
         Fragment fragment = null;
         Class fragmentClass = null;
+        String tag = null;
 
         switch (id) {
             case R.id.nav_profile:
                 if (LoginFragment.loggedIn) {
                     fragmentClass = ProfileFragment.class;
+                    tag = "ProfileFragment";
                     hideActionBar();
                     drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                    mMap.setOnMapClickListener(null);
                 } else {
                     fragmentClass = LoginFragment.class;
+                    tag = "LoginFragment";
+                    hideActionBar();
+                    drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                 }
                 break;
             case R.id.nav_friends:
@@ -191,12 +218,14 @@ public class MainActivity extends AppCompatActivity implements
             e.printStackTrace();
         }
 
+        fab.hide();
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.replace(R.id.map, fragment, "Fragment");
+        transaction.replace(R.id.map, fragment, tag);
         transaction.addToBackStack(null);
         transaction.commit();
 
+        mMap.setOnMapClickListener(null);
         navigationView.getMenu().getItem(0).setChecked(true);
         drawer.closeDrawer(GravityCompat.START);
     }
@@ -204,35 +233,17 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        ProfileFragment profileFragment = (ProfileFragment) getSupportFragmentManager().findFragmentByTag("Fragment");
-
+        // mMap.setOnMapClickListener((GoogleMap.OnMapClickListener) this);
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    buildGoogleApiClient();
-                }
-            }).start();
+            new Thread(() -> buildGoogleApiClient()).start();
 
             mMap.setMyLocationEnabled(true);
 
         }
         googleMap.getUiSettings().setMapToolbarEnabled(false);
-        //if (profileFragment != null && !profileFragment.isVisible()) {
-            mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-                @Override
-                public void onMapClick(LatLng latLng) {
-                    ActionBar actionBar = getSupportActionBar();
-                    if (actionBar.isShowing()) {
-                        hideActionBar();
-                    } else {
-                        showActionBar();
+        addListener();
 
-                    }
-                }
-            });
-        //}
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -266,7 +277,7 @@ public class MainActivity extends AppCompatActivity implements
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
 
         CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(latLng)      // Sets the center of the map to location user
+                .target(latLng)             // Sets the center of the map to location user
                 .zoom(17)                   // Sets the zoom
                 .bearing(90)                // Sets the orientation of the camera to east
                 .tilt(40)                   // Sets the tilt of the camera to 30 degrees
@@ -410,4 +421,56 @@ public class MainActivity extends AppCompatActivity implements
     }
 
 
+    private void addListener() {
+        mMap.setOnMapClickListener(latLng -> {
+            ActionBar actionBar = getSupportActionBar();
+            if (actionBar.isShowing()) {
+                hideActionBar();
+            } else {
+                showActionBar();
+
+            }
+        });
+    }
+
+    private void openDirectionsFragment() {
+        Fragment fragment = new DirectionsFragment();
+        String tag = "DirectionsFragment";
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.map, fragment, tag);
+        transaction.addToBackStack(null);
+        transaction.commit();
+        mMap.setOnMapClickListener(null);
+        hideActionBar();
+    }
+
+    private void calculateDirections(Marker marker) {
+        Log.d("Edmir", "calculateDirections: calculating directions.");
+
+        com.google.maps.model.LatLng destination = new com.google.maps.model.LatLng(
+                marker.getPosition().latitude,
+                marker.getPosition().longitude
+        );
+        DirectionsApiRequest directions = new DirectionsApiRequest(geoApiContext);
+
+        directions.alternatives(true);
+        directions.origin(new com.google.maps.model.LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()));
+
+        Log.d("Edmir", "calculateDirections: destination: " + destination.toString());
+        directions.destination(destination).setCallback(new PendingResult.Callback<DirectionsResult>() {
+            @Override
+            public void onResult(DirectionsResult result) {
+                Log.d("Edmir", "onResult: routes: " + result.routes[0].toString());
+                Log.d("Edmir", "onResult: geocodedWayPoints: " + result.geocodedWaypoints[0].toString());
+            }
+
+            @Override
+            public void onFailure(Throwable e) {
+                Log.e("Edmir", "onFailure: " + e.getMessage());
+
+            }
+        });
+    }
 }
