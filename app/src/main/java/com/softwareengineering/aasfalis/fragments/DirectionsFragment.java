@@ -17,8 +17,13 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.DirectionsApiRequest;
@@ -45,6 +50,7 @@ public class DirectionsFragment extends Fragment implements
     private MainActivity mainActivity;
     private Button searchButton;
     public ArrayList<PolylineData> mPolylineData = new ArrayList<>();
+    private Marker currentUserLocationMarker;
 
     @Nullable
     @Override
@@ -80,11 +86,12 @@ public class DirectionsFragment extends Fragment implements
             }
             if (addressList == null) {
 
-            } else {
+            } else if (addressList.size() > 0) {
                 Address address = addressList.get(0);
                 latLng = new com.google.maps.model.LatLng(address.getLatitude(), address.getLongitude());
             }
         }
+
         return latLng;
     }
 
@@ -95,32 +102,36 @@ public class DirectionsFragment extends Fragment implements
         com.google.maps.model.LatLng destination = searchLocation();
         DirectionsApiRequest directions = new DirectionsApiRequest(geoApiContext);
 
-        directions.alternatives(true);
-        directions.origin(new com.google.maps.model.LatLng(mainActivity.lastLocation.getLatitude(), mainActivity.lastLocation.getLongitude()));
+        if (directions != null && destination != null) {
+            directions.alternatives(true);
+            directions.origin(new com.google.maps.model.LatLng(mainActivity.lastLocation.getLatitude(), mainActivity.lastLocation.getLongitude()));
 
-        Log.d("Edmir", "calculateDirections: destination: " + destination.toString());
-        directions.destination(destination).setCallback(new PendingResult.Callback<DirectionsResult>() {
-            @Override
-            public void onResult(DirectionsResult result) {
-                Log.d("Edmir", "onResult: routes: " + result.routes[0].toString());
-                Log.d("Edmir", "onResult: duration: " + result.routes[0].legs[0].duration);
-                Log.d("Edmir", "onResult: distance: " + result.routes[0].legs[0].distance);
-                Log.d("Edmir", "onResult: geocodedWayPoints: " + result.geocodedWaypoints[0].toString());
-                addPolylinesToMap(result);
-            }
+            Log.d("Edmir", "calculateDirections: destination: " + destination.toString());
+            directions.destination(destination).setCallback(new PendingResult.Callback<DirectionsResult>() {
+                @Override
+                public void onResult(DirectionsResult result) {
+                    Log.d("Edmir", "onResult: routes: " + result.routes[0].toString());
+                    Log.d("Edmir", "onResult: duration: " + result.routes[0].legs[0].duration);
+                    Log.d("Edmir", "onResult: distance: " + result.routes[0].legs[0].distance);
+                    Log.d("Edmir", "onResult: geocodedWayPoints: " + result.geocodedWaypoints[0].toString());
+                    addPolylinesToMap(result);
 
-            @Override
-            public void onFailure(Throwable e) {
-                Log.e("Edmir", "onFailure: " + e.getMessage());
+                    //animateCamera(destination);
+                }
 
-            }
-        });
+                @Override
+                public void onFailure(Throwable e) {
+                    Log.e("Edmir", "onFailure: " + e.getMessage());
+
+                }
+            });
+
+        }
     }
 
     private void addPolylinesToMap(final DirectionsResult result) {
         new Handler(Looper.getMainLooper()).post(() -> {
             Log.d("Edmir", "run: result routes: " + result.routes.length);
-
             if (mPolylineData.size() > 0) {
                 for (PolylineData polylineData : mPolylineData) {
                     polylineData.getPolyline().remove();
@@ -145,14 +156,13 @@ public class DirectionsFragment extends Fragment implements
                 polyline.setColor(ContextCompat.getColor(getActivity(), R.color.darkGrey));
                 polyline.setClickable(true);
                 mPolylineData.add(new PolylineData(polyline, route.legs[0]));
-
             }
         });
     }
 
     @Override
     public void onPolylineClick(Polyline polyline) {
-
+        Log.d("Edmir", "poly clicked ");
         for (PolylineData polylineData : mPolylineData) {
             Log.d("Edmir", "onPolylineClick: toString: " + polylineData.toString());
             if (polyline.getId().equals(polylineData.getPolyline().getId())) {
@@ -165,4 +175,21 @@ public class DirectionsFragment extends Fragment implements
         }
     }
 
+    private void animateCamera(com.google.maps.model.LatLng latLng) {
+        MarkerOptions markerOptions = new MarkerOptions();
+        //markerOptions.position(latLng);
+        markerOptions.title("Current location");
+        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+
+        currentUserLocationMarker = mainActivity.mMap.addMarker(markerOptions);
+
+        //mainActivity.mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
+
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .zoom(17)                   // Sets the zoom
+                .bearing(90)                // Sets the orientation of the camera to east
+                .tilt(40)                   // Sets the tilt of the camera to 30 degrees
+                .build();                   // Creates a CameraPosition from the builder
+        mainActivity.mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+    }
 }

@@ -238,7 +238,9 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        mMap.setOnPolylineClickListener(directionsFragment);
+        if (directionsFragment != null) {
+            mMap.setOnPolylineClickListener(polyline -> directionsFragment.onPolylineClick(polyline));
+        }
         // mMap.setOnMapClickListener((GoogleMap.OnMapClickListener) this);
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -448,5 +450,7 @@ public class MainActivity extends AppCompatActivity implements
         mMap.setOnMapClickListener(null);
         hideActionBar();
     }
+
+
 }
 
