@@ -6,6 +6,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.content.pm.PackageManager;
 import android.graphics.Rect;
+import android.location.Address;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -52,6 +53,7 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
 import com.google.maps.DirectionsApiRequest;
 import com.google.maps.GeoApiContext;
 import com.google.maps.PendingResult;
@@ -61,6 +63,10 @@ import com.softwareengineering.aasfalis.fragments.DirectionsFragment;
 import com.softwareengineering.aasfalis.fragments.LoginFragment;
 import com.softwareengineering.aasfalis.fragments.ProfileFragment;
 import com.softwareengineering.aasfalis.fragments.RegisterFragment;
+import com.softwareengineering.aasfalis.models.PolylineData;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener,
@@ -69,10 +75,10 @@ public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
 
-    private GoogleMap mMap;
+    public GoogleMap mMap;
     private GoogleApiClient googleApiClient;
     private LocationRequest locationRequest;
-    private Location lastLocation;
+    public Location lastLocation;
     private Marker currentUserLocationMarker;
     private DrawerLayout drawer;
     private Toolbar toolbar;
@@ -80,6 +86,7 @@ public class MainActivity extends AppCompatActivity implements
     private NavigationView navigationView;
     private FloatingActionButton fab;
     private GeoApiContext geoApiContext;
+    private ArrayList<PolylineData> mPolylineData = new ArrayList<>();
 
     // holds the original Toolbar height.
     // this can also be obtained via (an)other method(s)
@@ -128,7 +135,6 @@ public class MainActivity extends AppCompatActivity implements
         int backStackEntryCount = getSupportFragmentManager().getBackStackEntryCount();
 
         //View fragmentRootView = loginFragment.getView();
-        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else if (backStackEntryCount == 1) {
@@ -173,7 +179,6 @@ public class MainActivity extends AppCompatActivity implements
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         selectDrawerItem(item);
@@ -233,6 +238,9 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        if (directionsFragment != null) {
+            mMap.setOnPolylineClickListener(polyline -> directionsFragment.onPolylineClick(polyline));
+        }
         // mMap.setOnMapClickListener((GoogleMap.OnMapClickListener) this);
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -352,14 +360,11 @@ public class MainActivity extends AppCompatActivity implements
 
         // restore `Toolbar's` height
         mVaActionBar = ValueAnimator.ofInt(0, mToolbarHeight);
-        mVaActionBar.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                // update LayoutParams
-                ((AppBarLayout.LayoutParams) toolbar.getLayoutParams()).height
-                        = (Integer) animation.getAnimatedValue();
-                toolbar.requestLayout();
-            }
+        mVaActionBar.addUpdateListener(animation -> {
+            // update LayoutParams
+            ((AppBarLayout.LayoutParams) toolbar.getLayoutParams()).height
+                    = (Integer) animation.getAnimatedValue();
+            toolbar.requestLayout();
         });
 
         mVaActionBar.addListener(new AnimatorListenerAdapter() {
@@ -446,31 +451,6 @@ public class MainActivity extends AppCompatActivity implements
         hideActionBar();
     }
 
-    private void calculateDirections(Marker marker) {
-        Log.d("Edmir", "calculateDirections: calculating directions.");
 
-        com.google.maps.model.LatLng destination = new com.google.maps.model.LatLng(
-                marker.getPosition().latitude,
-                marker.getPosition().longitude
-        );
-        DirectionsApiRequest directions = new DirectionsApiRequest(geoApiContext);
-
-        directions.alternatives(true);
-        directions.origin(new com.google.maps.model.LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()));
-
-        Log.d("Edmir", "calculateDirections: destination: " + destination.toString());
-        directions.destination(destination).setCallback(new PendingResult.Callback<DirectionsResult>() {
-            @Override
-            public void onResult(DirectionsResult result) {
-                Log.d("Edmir", "onResult: routes: " + result.routes[0].toString());
-                Log.d("Edmir", "onResult: geocodedWayPoints: " + result.geocodedWaypoints[0].toString());
-            }
-
-            @Override
-            public void onFailure(Throwable e) {
-                Log.e("Edmir", "onFailure: " + e.getMessage());
-
-            }
-        });
-    }
 }
+

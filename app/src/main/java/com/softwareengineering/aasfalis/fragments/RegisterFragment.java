@@ -49,76 +49,68 @@ public class RegisterFragment extends Fragment {
         passwordTxt.setTransformationMethod(PasswordTransformationMethod.getInstance());
 
 
-        registerBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        registerBtn.setOnClickListener(v -> {
 
-                String eMail = emailTxt.getText().toString();
-                String passw = passwordTxt.getText().toString();
-                String confirmPass = confirmTxt.getText().toString();
-                String firstName = firstNameTxt.getText().toString();
-                String lastName = lastNameTxt.getText().toString();
+            String eMail = emailTxt.getText().toString();
+            String passw = passwordTxt.getText().toString();
+            String confirmPass = confirmTxt.getText().toString();
+            String firstName = firstNameTxt.getText().toString();
+            String lastName = lastNameTxt.getText().toString();
 
-                if (isEmailValid(eMail) && isPasswordValid(passw) && passw.equals(confirmPass)
-                        && !firstName.isEmpty() && !lastName.isEmpty()) {
-                    createAccount(eMail, passw);
-                } else if (!passw.equals(confirmPass)) {
+            if (isEmailValid(eMail) && isPasswordValid(passw) && passw.equals(confirmPass)
+                    && !firstName.isEmpty() && !lastName.isEmpty()) {
+                createAccount(eMail, passw);
+            } else if (!passw.equals(confirmPass)) {
 
-                    new AlertDialog.Builder(getContext(), R.style.com_facebook_auth_dialog)
-                            .setTitle("passwords are not matching!")
-                            .setNegativeButton(android.R.string.no, null)
-                            .setIcon(android.R.drawable.ic_dialog_alert)
-                            .show();
-                } else if (eMail.isEmpty() || passw.isEmpty() || confirmPass.isEmpty()
-                        || firstName.isEmpty() || lastName.isEmpty()) {
+                new AlertDialog.Builder(getContext(), R.style.com_facebook_auth_dialog)
+                        .setTitle("passwords are not matching!")
+                        .setNegativeButton(android.R.string.no, null)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+            } else if (eMail.isEmpty() || passw.isEmpty() || confirmPass.isEmpty()
+                    || firstName.isEmpty() || lastName.isEmpty()) {
 
-                    new AlertDialog.Builder(getContext(), R.style.com_facebook_auth_dialog)
-                            .setTitle("Make sure to fill in all the tabs!")
-                            .setNegativeButton(android.R.string.no, null)
-                            .setIcon(android.R.drawable.ic_dialog_alert)
-                            .show();
-                } else if (!isPasswordValid(passw)){
+                new AlertDialog.Builder(getContext(), R.style.com_facebook_auth_dialog)
+                        .setTitle("Make sure to fill in all the tabs!")
+                        .setNegativeButton(android.R.string.no, null)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+            } else if (!isPasswordValid(passw)){
 
-                    new AlertDialog.Builder(getContext(), R.style.com_facebook_auth_dialog)
-                            .setTitle("Password needs to be at least 6 character long!")
-                            .setNegativeButton(android.R.string.no, null)
-                            .setIcon(android.R.drawable.ic_dialog_alert)
-                            .show();
-                }
+                new AlertDialog.Builder(getContext(), R.style.com_facebook_auth_dialog)
+                        .setTitle("Password needs to be at least 6 character long!")
+                        .setNegativeButton(android.R.string.no, null)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
             }
         });
-
-
         return view;
     }
 
     private void createAccount(String mail, String password) {
 
         authUser.createUserWithEmailAndPassword(mail, password)
-                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "createUserWithEmail:success");
-                            FirebaseUser user = authUser.getCurrentUser();
-                            user.sendEmailVerification();
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        // Sign in success, update UI with the signed-in user's information
+                        Log.d(TAG, "createUserWithEmail:success");
+                        FirebaseUser user = authUser.getCurrentUser();
+                        user.sendEmailVerification();
 
-                            Toast.makeText(getContext(), "Verification mail sent!",
-                                    Toast.LENGTH_LONG).show();
+                        Toast.makeText(getContext(), "Verification mail sent!",
+                                Toast.LENGTH_LONG).show();
 
-                            NavigationView navigationView = getActivity().findViewById(R.id.nav_view);
-                            navigationView.getMenu().getItem(0).setChecked(false);
+                        NavigationView navigationView = getActivity().findViewById(R.id.nav_view);
+                        navigationView.getMenu().getItem(0).setChecked(false);
 
-                            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                            fragmentManager.popBackStack();
+                        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                        fragmentManager.popBackStack();
 
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(getContext(), "Authentication failed.",
-                                    Toast.LENGTH_LONG).show();
-                        }
+                    } else {
+                        // If sign in fails, display a message to the user.
+                        Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                        Toast.makeText(getContext(), "Authentication failed.",
+                                Toast.LENGTH_LONG).show();
                     }
                 });
     }
