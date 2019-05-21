@@ -56,11 +56,11 @@ public class RegisterFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
-                eMail = emailTxt.getText().toString();
+                String eMail = emailTxt.getText().toString();
                 String passw = passwordTxt.getText().toString();
                 String confirmPass = confirmTxt.getText().toString();
-                firstName = firstNameTxt.getText().toString();
-                lastName = lastNameTxt.getText().toString();
+                String firstName = firstNameTxt.getText().toString();
+                String lastName = lastNameTxt.getText().toString();
 
                 if (isEmailValid(eMail) && isPasswordValid(passw) && passw.equals(confirmPass)
                         && !firstName.isEmpty() && !lastName.isEmpty()) {
@@ -126,14 +126,13 @@ public class RegisterFragment extends Fragment {
                         }
                     }
                 });
-
     }
 
-    public boolean isEmailValid(String mail) {
+    private boolean isEmailValid(String mail) {
         return mail.contains("@");
     }
 
-    public boolean isPasswordValid(String password) {
+    private boolean isPasswordValid(String password) {
         return password.matches("[0-9a-zA-Z]{6,16}");
     }
 

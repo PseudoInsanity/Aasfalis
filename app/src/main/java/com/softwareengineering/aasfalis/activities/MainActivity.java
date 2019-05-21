@@ -4,29 +4,38 @@ import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
-import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Rect;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.Toast;
+import android.os.Build;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -37,13 +46,16 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.firebase.auth.FirebaseAuth;
+import com.google.maps.DirectionsApiRequest;
 import com.google.maps.GeoApiContext;
+import com.google.maps.PendingResult;
+import com.google.maps.model.DirectionsResult;
 import com.softwareengineering.aasfalis.R;
 import com.softwareengineering.aasfalis.adapters.FriendHandler;
 import com.softwareengineering.aasfalis.client.ClientService;
@@ -53,7 +65,7 @@ import com.softwareengineering.aasfalis.fragments.DirectionsFragment;
 import com.softwareengineering.aasfalis.fragments.FriendFragment;
 import com.softwareengineering.aasfalis.fragments.LoginFragment;
 import com.softwareengineering.aasfalis.fragments.ProfileFragment;
-
+import com.softwareengineering.aasfalis.fragments.RegisterFragment;
 
 public class MainActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener,
@@ -73,11 +85,17 @@ public class MainActivity extends AppCompatActivity implements
     private NavigationView navigationView;
     private FloatingActionButton fab;
     private GeoApiContext geoApiContext;
+
     // holds the original Toolbar height.
     // this can also be obtained via (an)other method(s)
     private int mToolbarHeight, mAnimDuration = 600/* milliseconds */;
 
     private static final int REQUEST_USER_LOCATION_CODE = 99;
+
+    //Fragments
+    private LoginFragment loginFragment = (LoginFragment) getSupportFragmentManager().findFragmentByTag("LoginFragment");
+    private ProfileFragment profileFragment = (ProfileFragment) getSupportFragmentManager().findFragmentByTag("ProfileFragment");
+    private DirectionsFragment directionsFragment = (DirectionsFragment) getSupportFragmentManager().findFragmentByTag("DirectionsFragment");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,6 +117,7 @@ public class MainActivity extends AppCompatActivity implements
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setCheckedItem(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
 
         checkUserLocationPermission();
 
@@ -168,8 +187,6 @@ public class MainActivity extends AppCompatActivity implements
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            System.out.println("HEJHEJEHEJEHEJEHEJEHEJEHEJ");
-            signOut();
             return true;
         }
 
@@ -240,6 +257,9 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        if (directionsFragment != null) {
+            mMap.setOnPolylineClickListener(polyline -> directionsFragment.onPolylineClick(polyline));
+        }
         // mMap.setOnMapClickListener((GoogleMap.OnMapClickListener) this);
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -457,6 +477,22 @@ public class MainActivity extends AppCompatActivity implements
         FirebaseAuth.getInstance().signOut();
         stopService(new Intent(this, ClientService.class));
 
+        directions.alternatives(true);
+        directions.origin(new com.google.maps.model.LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()));
 
+        Log.d("Edmir", "calculateDirections: destination: " + destination.toString());
+        directions.destination(destination).setCallback(new PendingResult.Callback<DirectionsResult>() {
+            @Override
+            public void onResult(DirectionsResult result) {
+                Log.d("Edmir", "onResult: routes: " + result.routes[0].toString());
+                Log.d("Edmir", "onResult: geocodedWayPoints: " + result.geocodedWaypoints[0].toString());
+            }
+
+            @Override
+            public void onFailure(Throwable e) {
+                Log.e("Edmir", "onFailure: " + e.getMessage());
+
+            }
+        });
     }
 }
