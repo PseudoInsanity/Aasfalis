@@ -56,7 +56,7 @@ public class DirectionsFragment extends Fragment implements
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         final View inflate = inflater.inflate(R.layout.fragment_directions, container, false);
-        locationSearch = (EditText) inflate.findViewById(R.id.to_location_text);
+        //locationSearch = (EditText) inflate.findViewById(R.id.to_location_text);
         searchButton = (Button) inflate.findViewById(R.id.search_button);
         mainActivity = (MainActivity) getActivity();
 

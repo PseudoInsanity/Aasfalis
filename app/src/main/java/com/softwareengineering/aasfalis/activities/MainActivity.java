@@ -4,10 +4,12 @@ import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Rect;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
@@ -52,6 +54,7 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.maps.DirectionsApiRequest;
 import com.google.maps.GeoApiContext;
 import com.google.maps.PendingResult;
@@ -64,6 +67,7 @@ import com.softwareengineering.aasfalis.client.ServerReceiver;
 import com.softwareengineering.aasfalis.fragments.DirectionsFragment;
 import com.softwareengineering.aasfalis.fragments.FriendFragment;
 import com.softwareengineering.aasfalis.fragments.LoginFragment;
+import com.softwareengineering.aasfalis.fragments.MessageFragment;
 import com.softwareengineering.aasfalis.fragments.ProfileFragment;
 import com.softwareengineering.aasfalis.fragments.RegisterFragment;
 
@@ -74,10 +78,10 @@ public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
 
-    private GoogleMap mMap;
+    public GoogleMap mMap;
     private GoogleApiClient googleApiClient;
     private LocationRequest locationRequest;
-    private Location lastLocation;
+    public Location lastLocation;
     private Marker currentUserLocationMarker;
     private DrawerLayout drawer;
     private Toolbar toolbar;
@@ -103,6 +107,7 @@ public class MainActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().permitNetwork().build());
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(view -> openDirectionsFragment());
@@ -187,6 +192,7 @@ public class MainActivity extends AppCompatActivity implements
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            signOut();
             return true;
         }
 
@@ -233,6 +239,10 @@ public class MainActivity extends AppCompatActivity implements
             case R.id.nav_share:
                 break;
             case R.id.nav_send:
+                fragmentClass = MessageFragment.class;
+                tag = "MessageFrag";
+                hideActionBar();
+                drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                 break;
         }
 
@@ -476,8 +486,9 @@ public class MainActivity extends AppCompatActivity implements
     private void signOut() {
         FirebaseAuth.getInstance().signOut();
         stopService(new Intent(this, ClientService.class));
+    }
 
-        directions.alternatives(true);
+        /*directions.alternatives(true);
         directions.origin(new com.google.maps.model.LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()));
 
         Log.d("Edmir", "calculateDirections: destination: " + destination.toString());
@@ -494,5 +505,5 @@ public class MainActivity extends AppCompatActivity implements
 
             }
         });
-    }
+    }*/
 }

@@ -15,11 +15,11 @@ public class FriendHandler {
     private static ArrayList<Friend> friendList;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    public void fillList(String uID) {
+    public void fillList(String eMail) {
 
         friendList = new ArrayList<>();
 
-        db.collection("users").document(uID).collection("friendList")
+        db.collection("users").document(eMail).collection("friends")
                 .get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override

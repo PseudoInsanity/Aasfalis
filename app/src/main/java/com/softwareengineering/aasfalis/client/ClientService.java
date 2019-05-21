@@ -1,19 +1,12 @@
 package com.softwareengineering.aasfalis.client;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.app.Service;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.IBinder;
-import android.os.SystemClock;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.softwareengineering.aasfalis.models.Test;
+import com.softwareengineering.aasfalis.models.NewFriend;
 import com.softwareengineering.aasfalis.models.User;
 
 import java.io.IOException;
@@ -25,7 +18,7 @@ import java.net.Socket;
 
 public class ClientService extends Service {
 
-    private Client client = new Client();
+    private static Client client = new Client();
 
     @Override
     public void onCreate (){
@@ -51,9 +44,14 @@ public class ClientService extends Service {
 
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             client.execute();
-        } else  {
+        } else  if (FirebaseAuth.getInstance().getCurrentUser() == null){
             client.cancelLoop();
         }
+    }
+
+    public static void sendObject (Object object) {
+
+        client.sendToServer(object);
     }
 
 
@@ -63,6 +61,9 @@ public class ClientService extends Service {
         private Socket socket;
         private ObjectOutputStream dataOutputStream;
         private ObjectInputStream dataInputStream;
+        private Object object;
+        private NewFriend newFriend;
+        private Database database;
 
         private Client() {}
 
@@ -71,16 +72,21 @@ public class ClientService extends Service {
 
             if (connectToServer()) {
 
-
-                int i = 0;
+                database = new Database();
 
                 while (FirebaseAuth.getInstance().getCurrentUser() != null) {
 
                     try {
 
                         Thread.sleep(1000);
-                        dataOutputStream.writeObject(new Test("Hej: " + i));
-                        i++;
+                        object = dataInputStream.readObject();
+
+                        if (object instanceof NewFriend) {
+                            newFriend = (NewFriend) object;
+                            database.addFriend(newFriend);
+
+                        }
+
 
                     } catch (Exception e) {
 
@@ -118,6 +124,15 @@ public class ClientService extends Service {
             } catch (Exception e) {
 
                 return false;
+            }
+        }
+
+        private void sendToServer (Object object) {
+
+            try {
+                dataOutputStream.writeObject(object);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
 

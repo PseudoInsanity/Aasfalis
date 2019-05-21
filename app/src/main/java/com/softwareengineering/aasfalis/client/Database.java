@@ -13,6 +13,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
+import com.softwareengineering.aasfalis.models.NewFriend;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -75,5 +76,44 @@ public class Database {
 
         db.collection("users").document("test123")
                 .set(data, SetOptions.merge());
+    }
+
+    public void addFriend (NewFriend newFriend) {
+
+        Map<String, Object> friend = new HashMap<>();
+        friend.put("eMail", newFriend.getReveiverMail());
+
+        db.collection("users").document(newFriend.getSenderMail()).collection("friends").document(newFriend.getReveiverMail())
+                .set(friend)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+
+                    }
+                });
+
+        friend = new HashMap<>();
+        friend.put("eMail", newFriend.getSenderMail());
+
+        db.collection("users").document(newFriend.getReveiverMail()).collection("friends").document(newFriend.getSenderMail())
+                .set(friend)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+
+                    }
+                });
     }
 }
