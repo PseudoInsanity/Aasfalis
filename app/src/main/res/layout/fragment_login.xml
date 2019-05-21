@@ -72,7 +72,7 @@
         android:layout_marginEnd="161dp"
         android:layout_marginBottom="8dp"
         android:background="@drawable/my_button"
-        android:backgroundTint="@color/buttonOrange"
+        android:backgroundTint="@android:color/holo_orange_dark"
         android:text="SIGN IN"
         android:textColor="@android:color/white"
         android:textSize="18sp"

@@ -1,4 +1,4 @@
-package com.softwareengineering.aasfalis.activities;
+package com.softwareengineering.aasfalis.client;
 
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -8,6 +8,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -21,15 +22,16 @@ import static android.support.constraint.Constraints.TAG;
 public class Database {
 
     // Write a message to the database
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    public void addUser(String id){
+    public void addUser(String id, String fName, String lName, String eMail){
         Map<String, Object> user = new HashMap<>();
-        user.put("firstName", "Sara");
-        user.put("lastName", "Larasson");
-        user.put("email", "sara.sångare@melodi.com");
+        user.put("userid", id);
+        user.put("firstName", fName);
+        user.put("lastName", lName);
+        user.put("email", eMail);
 
-        db.collection("users").document(id)
+        db.collection("users").document(eMail)
                 .set(user)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override

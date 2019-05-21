@@ -1,30 +1,43 @@
-package com.softwareengineering.aasfalis.models;
+package com.softwareengineering.aasfalis.adapters;
 
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.auth.User;
+import com.softwareengineering.aasfalis.models.Friend;
 
 import java.util.ArrayList;
 
-public class Friend {
+public class FriendHandler {
 
-    private ArrayList<Friend> friendList;
+    private static ArrayList<Friend> friendList;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    public Friend () {
+    public void fillList(String uID) {
 
         friendList = new ArrayList<>();
 
-        db.collection("friendList")
+        db.collection("users").document(uID).collection("friendList")
                 .get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        for (QueryDocumentSnapshot querySnapshot: queryDocumentSnapshots) {
-                            friendList.add(new Fr)
+                        for (QueryDocumentSnapshot q: queryDocumentSnapshots) {
+                            friendList.add(new Friend(q.getString("firstName"), q.getString("lastName"), q.getString("userID")));
                         }
                     }
                 });
+
+    }
+
+    public ArrayList<Friend> getFriendList() {
+        return friendList;
+    }
+
+    public void clearList () {
+
+        friendList = new ArrayList<>();
     }
 }

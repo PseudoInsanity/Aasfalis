@@ -23,6 +23,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.softwareengineering.aasfalis.R;
+import com.softwareengineering.aasfalis.client.Database;
 
 import java.util.Objects;
 
@@ -32,6 +33,8 @@ public class RegisterFragment extends Fragment {
     private Button registerBtn, backFab;
     private EditText emailTxt, passwordTxt, confirmTxt, firstNameTxt, lastNameTxt;
     private FirebaseAuth authUser;
+    private Database database;
+    private String eMail, firstName, lastName;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -53,11 +56,11 @@ public class RegisterFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
-                String eMail = emailTxt.getText().toString();
+                eMail = emailTxt.getText().toString();
                 String passw = passwordTxt.getText().toString();
                 String confirmPass = confirmTxt.getText().toString();
-                String firstName = firstNameTxt.getText().toString();
-                String lastName = lastNameTxt.getText().toString();
+                firstName = firstNameTxt.getText().toString();
+                lastName = lastNameTxt.getText().toString();
 
                 if (isEmailValid(eMail) && isPasswordValid(passw) && passw.equals(confirmPass)
                         && !firstName.isEmpty() && !lastName.isEmpty()) {
@@ -103,6 +106,8 @@ public class RegisterFragment extends Fragment {
                             Log.d(TAG, "createUserWithEmail:success");
                             FirebaseUser user = authUser.getCurrentUser();
                             user.sendEmailVerification();
+                            database = new Database();
+                            database.addUser(user.getUid(), firstName, lastName, eMail);
 
                             Toast.makeText(getContext(), "Verification mail sent!",
                                     Toast.LENGTH_LONG).show();
@@ -121,13 +126,14 @@ public class RegisterFragment extends Fragment {
                         }
                     }
                 });
+
     }
 
-    private boolean isEmailValid(String mail) {
+    public boolean isEmailValid(String mail) {
         return mail.contains("@");
     }
 
-    private boolean isPasswordValid(String password) {
+    public boolean isPasswordValid(String password) {
         return password.matches("[0-9a-zA-Z]{6,16}");
     }
 
