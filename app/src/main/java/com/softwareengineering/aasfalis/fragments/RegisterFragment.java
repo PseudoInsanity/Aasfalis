@@ -29,8 +29,8 @@ import java.util.Objects;
 import static android.content.ContentValues.TAG;
 
 public class RegisterFragment extends Fragment {
-    private Button registerBtn, backFab;
-    private EditText emailTxt, passwordTxt, confirmTxt, firstNameTxt, lastNameTxt;
+    private Button registerBtn;
+    private EditText emailTxt, passwordTxt, confirmTxt, firstNameTxt, lastNameTxt, phoneTxt;
     private FirebaseAuth authUser;
 
     @Override
@@ -43,10 +43,13 @@ public class RegisterFragment extends Fragment {
         confirmTxt = view.findViewById(R.id.confirmTxt);
         firstNameTxt = view.findViewById(R.id.firstNameTxt);
         lastNameTxt = view.findViewById(R.id.lastNameTxt);
+        phoneTxt = view.findViewById(R.id.phoneTxt);
 
         authUser = FirebaseAuth.getInstance();
 
+        //hiding the passwords
         passwordTxt.setTransformationMethod(PasswordTransformationMethod.getInstance());
+        confirmTxt.setTransformationMethod(PasswordTransformationMethod.getInstance());
 
 
         registerBtn.setOnClickListener(v -> {
@@ -56,9 +59,10 @@ public class RegisterFragment extends Fragment {
             String confirmPass = confirmTxt.getText().toString();
             String firstName = firstNameTxt.getText().toString();
             String lastName = lastNameTxt.getText().toString();
+            String phone = phoneTxt.getText().toString();
 
             if (isEmailValid(eMail) && isPasswordValid(passw) && passw.equals(confirmPass)
-                    && !firstName.isEmpty() && !lastName.isEmpty()) {
+                    && !firstName.isEmpty() && !lastName.isEmpty() && isPhoneMatching(phone)) {
                 createAccount(eMail, passw);
             } else if (!passw.equals(confirmPass)) {
 
@@ -79,6 +83,14 @@ public class RegisterFragment extends Fragment {
 
                 new AlertDialog.Builder(getContext(), R.style.com_facebook_auth_dialog)
                         .setTitle("Password needs to be at least 6 character long!")
+                        .setNegativeButton(android.R.string.no, null)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+            }
+            else if (!isPhoneMatching(phone)){
+
+                new AlertDialog.Builder(getContext(), R.style.com_facebook_auth_dialog)
+                        .setTitle("Invalid phone number")
                         .setNegativeButton(android.R.string.no, null)
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .show();
@@ -121,6 +133,9 @@ public class RegisterFragment extends Fragment {
 
     private boolean isPasswordValid(String password) {
         return password.matches("[0-9a-zA-Z]{6,16}");
+    }
+    private boolean isPhoneMatching(String phone) {
+        return phone.matches("[0-9]{10}");
     }
 
 

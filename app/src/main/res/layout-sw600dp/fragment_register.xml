@@ -1,22 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:background="@color/colorPrimaryDark"
-    android:id="@+id/register"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+
+    android:background="@color/colorPrimaryDark">
 
     <EditText
         android:id="@+id/firstNameTxt"
         android:layout_width="165dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="60dp"
+        android:layout_height="55dp"
+        android:layout_marginTop="120dp"
         android:layout_marginEnd="228dp"
         android:background="@drawable/my_edit_text"
-        android:hint="   First name"
-        android:textAlignment="textStart"
+        android:hint="First name"
+        android:textAlignment="center"
         android:textColorHint="#d9d9d9"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -25,42 +24,41 @@
     <EditText
         android:id="@+id/lastNameTxt"
         android:layout_width="165dp"
-        android:layout_height="50dp"
+        android:layout_height="55dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="60dp"
+        android:layout_marginTop="108dp"
         android:layout_marginEnd="20dp"
         android:background="@drawable/my_edit_text"
-        android:hint="   Last name"
-        android:textAlignment="textStart"
+        android:hint="Last name"
+        android:textAlignment="center"
         android:textColorHint="#d9d9d9"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.722"
         app:layout_constraintStart_toEndOf="@+id/firstNameTxt"
         app:layout_constraintTop_toBottomOf="@+id/textView5" />
 
     <EditText
         android:id="@+id/passwordTxt"
         android:layout_width="375dp"
-        android:layout_height="45dp"
-        android:layout_marginTop="100dp"
+        android:layout_height="55dp"
         android:layout_marginEnd="20dp"
         android:background="@drawable/my_edit_text"
-        android:hint="   Password"
-        android:textAlignment="textStart"
+        android:hint="Password"
+        android:textAlignment="center"
         android:textColorHint="#d9d9d9"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/emailTxt" />
+        tools:layout_editor_absoluteY="390dp" />
 
     <EditText
         android:id="@+id/confirmTxt"
         android:layout_width="375dp"
-        android:layout_height="45dp"
-        android:layout_marginTop="16dp"
+        android:layout_height="55dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="20dp"
         android:background="@drawable/my_edit_text"
-        android:hint="   Confirm password"
-        android:textAlignment="textStart"
+        android:hint="Confirm password"
+        android:textAlignment="center"
         android:textColorHint="#d9d9d9"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/passwordTxt" />
@@ -88,29 +86,14 @@
     <EditText
         android:id="@+id/emailTxt"
         android:layout_width="375dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="8dp"
+        android:layout_height="55dp"
         android:layout_marginEnd="20dp"
         android:background="@drawable/my_edit_text"
-        android:hint="   Email"
-        android:textAlignment="textStart"
+        android:hint="Email"
+        android:textAlignment="center"
         android:textColorHint="#d9d9d9"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/firstNameTxt" />
-
-    <EditText
-        android:id="@+id/phoneTxt"
-        android:layout_width="375dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="72dp"
-        android:layout_marginEnd="20dp"
-        android:background="@drawable/my_edit_text"
-        android:hint="   Phone"
-
-        android:textAlignment="textStart"
-        android:textColorHint="#d9d9d9"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/firstNameTxt" />
+        tools:layout_editor_absoluteY="315dp" />
 
     <TextView
         android:id="@+id/textView5"
@@ -129,37 +112,9 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.078"
+        app:layout_constraintHorizontal_bias="0.098"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.108" />
-
-    <ImageView
-        android:id="@+id/imageView3"
-        android:layout_width="29dp"
-        android:layout_height="26dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="28dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/passwordTxt"
-        app:srcCompat="@drawable/password_white" />
-
-    <ImageView
-        android:id="@+id/imageView4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:layout_marginEnd="32dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/emailTxt"
-        app:srcCompat="@drawable/email_white" />
-
-    <ImageView
-        android:id="@+id/imageView2"
-        android:layout_width="30dp"
-        android:layout_height="35dp"
-        app:srcCompat="@drawable/phone"
-        tools:layout_editor_absoluteX="354dp"
-        tools:layout_editor_absoluteY="311dp" />
+        app:layout_constraintVertical_bias="0.121" />
 
 </android.support.constraint.ConstraintLayout>
