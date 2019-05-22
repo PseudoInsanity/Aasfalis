@@ -7,6 +7,7 @@ import android.animation.ValueAnimator;
 import android.content.pm.PackageManager;
 import android.graphics.Rect;
 import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -67,13 +68,14 @@ import com.softwareengineering.aasfalis.models.PolylineData;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener,
         OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        LocationListener {
+        LocationListener, GoogleMap.OnPolylineClickListener {
 
     public GoogleMap mMap;
     private GoogleApiClient googleApiClient;
@@ -238,9 +240,8 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        if (directionsFragment != null) {
-            mMap.setOnPolylineClickListener(polyline -> directionsFragment.onPolylineClick(polyline));
-        }
+
+        mMap.setOnPolylineClickListener(this::onPolylineClick);
         // mMap.setOnMapClickListener((GoogleMap.OnMapClickListener) this);
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -352,7 +353,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
 
-    private void showActionBar() {
+    public void showActionBar() {
         if (mVaActionBar != null && mVaActionBar.isRunning()) {
             // we are already animating a transition - block here
             return;
@@ -385,7 +386,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
 
-    private void hideActionBar() {
+    public void hideActionBar() {
         // initialize `mToolbarHeight`
         if (mToolbarHeight == 0) {
             mToolbarHeight = toolbar.getHeight();
@@ -398,14 +399,11 @@ public class MainActivity extends AppCompatActivity implements
 
         // animate `Toolbar's` height to zero.
         mVaActionBar = ValueAnimator.ofInt(mToolbarHeight, 0);
-        mVaActionBar.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                // update LayoutParams
-                ((AppBarLayout.LayoutParams) toolbar.getLayoutParams()).height
-                        = (Integer) animation.getAnimatedValue();
-                toolbar.requestLayout();
-            }
+        mVaActionBar.addUpdateListener(animation -> {
+            // update LayoutParams
+            ((AppBarLayout.LayoutParams) toolbar.getLayoutParams()).height
+                    = (Integer) animation.getAnimatedValue();
+            toolbar.requestLayout();
         });
 
         mVaActionBar.addListener(new AnimatorListenerAdapter() {
@@ -451,6 +449,45 @@ public class MainActivity extends AppCompatActivity implements
         hideActionBar();
     }
 
+    @Override
+    public void onPolylineClick(Polyline polyline) {
+        for (PolylineData polylineData : DirectionsFragment.mPolylineData) {
+            Log.d("Edmir", "onPolylineClick: toString: " + polylineData.toString());
+            if (polyline.getId().equals(polylineData.getPolyline().getId())) {
+                polylineData.getPolyline().setColor(ContextCompat.getColor(this, R.color.headings));
+                polylineData.getPolyline().setZIndex(1);
+
+                LatLng endLocation = new LatLng(
+                        polylineData.getLeg().endLocation.lat,
+                        polylineData.getLeg().endLocation.lng
+                );
+
+                try {
+                    Geocoder geocoder;
+                    List<Address> addresses;
+                    geocoder = new Geocoder(this, Locale.getDefault());
+
+                    addresses = geocoder.getFromLocation(endLocation.latitude, endLocation.longitude, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
+
+                    String address = addresses.get(0).getAddressLine(0);
+                    Marker marker = mMap.addMarker(new MarkerOptions()
+                            .position(endLocation)
+                            .title(address)
+                            .snippet("Duration: " + polylineData.getLeg().duration
+                            ).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+
+                    marker.showInfoWindow();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            } else {
+                polylineData.getPolyline().setColor(ContextCompat.getColor(this, R.color.darkGrey));
+                polylineData.getPolyline().setZIndex(0);
+            }
+
+        }
+        hideActionBar();
+    }
 
 }
 
