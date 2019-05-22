@@ -61,8 +61,6 @@
         </activity>
 
         <service android:name=".client.ClientService" />
-        <receiver android:name=".client.ServerReceiver"/>
-
 
 
         <!--    <activity
