@@ -232,7 +232,7 @@ public class MainActivity extends AppCompatActivity implements
         transaction.addToBackStack(null);
         transaction.commit();
 
-        mMap.setOnMapClickListener(null);
+      //  mMap.setOnMapClickListener(null);
         navigationView.getMenu().getItem(0).setChecked(true);
         drawer.closeDrawer(GravityCompat.START);
     }
