@@ -5,18 +5,18 @@ import java.io.Serializable;
 public class NewFriend implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private String senderMail, reveiverMail;
+    private String senderMail, receiverMail;
 
-    public NewFriend(String senderMail, String reveiverMail) {
+    public NewFriend(String senderMail, String receiverMail) {
         this.senderMail = senderMail;
-        this.reveiverMail = reveiverMail;
+        this.receiverMail = receiverMail;
     }
 
     public String getSenderMail() {
         return senderMail;
     }
 
-    public String getReveiverMail() {
-        return reveiverMail;
+    public String getRecieverMail() {
+        return receiverMail;
     }
 }

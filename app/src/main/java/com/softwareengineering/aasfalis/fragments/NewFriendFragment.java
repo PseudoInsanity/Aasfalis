@@ -15,8 +15,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.softwareengineering.aasfalis.R;
 import com.softwareengineering.aasfalis.models.NewFriend;
 
-import static com.softwareengineering.aasfalis.client.ClientService.sendObject;
-
 public class NewFriendFragment extends DialogFragment {
 
     private EditText friendEmail;
@@ -35,7 +33,7 @@ public class NewFriendFragment extends DialogFragment {
             public void onClick(View v) {
                 String fEmail = friendEmail.getText().toString();
                 if (isEmailValid(fEmail)) {
-                    sendObject(new NewFriend(FirebaseAuth.getInstance().getCurrentUser().getEmail(), fEmail));
+                    //sendObject(new NewFriend(FirebaseAuth.getInstance().getCurrentUser().getEmail(), fEmail));
                 }
             }
         });

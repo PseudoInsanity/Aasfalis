@@ -15,16 +15,14 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 
-
 public class ClientService extends Service {
 
     private static Client client = new Client();
 
     @Override
-    public void onCreate (){
-        super.onCreate();
+    public void onCreate () {
+            client = new Client();
     }
-
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -33,7 +31,7 @@ public class ClientService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        client.execute();
+            client.execute();
 
         return START_STICKY;
     }
@@ -42,16 +40,26 @@ public class ClientService extends Service {
     public void onDestroy () {
 
 
-        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            breakLoop();
+            forceOut();
+        } else if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             client.execute();
-        } else  if (FirebaseAuth.getInstance().getCurrentUser() == null){
-            client.cancelLoop();
         }
+
     }
 
     public static void sendObject (Object object) {
 
         client.sendToServer(object);
+    }
+
+    public static void forceOut () {
+        client.closeSocket();
+    }
+
+    public static void breakLoop () {
+        client.cancelLoop();
     }
 
 
@@ -78,7 +86,9 @@ public class ClientService extends Service {
 
                     try {
 
-                        Thread.sleep(1000);
+                        if (isCancelled()) {
+                            break;
+                        }
                         object = dataInputStream.readObject();
 
                         if (object instanceof NewFriend) {
@@ -98,12 +108,8 @@ public class ClientService extends Service {
                  */
                 }
 
-                try {
-                    socket.close();
 
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+
             }
             return null;
         }
@@ -117,7 +123,7 @@ public class ClientService extends Service {
                 this.dataInputStream = new ObjectInputStream(socket.getInputStream());
                 this.dataOutputStream = new ObjectOutputStream(socket.getOutputStream());
 
-                dataOutputStream.writeObject(new User(FirebaseAuth.getInstance().getUid()));
+                dataOutputStream.writeObject(new User(FirebaseAuth.getInstance().getCurrentUser().getEmail()));
 
                 return true;
 
@@ -138,6 +144,14 @@ public class ClientService extends Service {
 
         private void cancelLoop () {
             cancel(true);
+        }
+
+        private void closeSocket () {
+            try {
+                socket.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 }

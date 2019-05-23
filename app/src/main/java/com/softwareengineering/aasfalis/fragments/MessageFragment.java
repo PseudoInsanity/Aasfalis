@@ -25,7 +25,6 @@ import com.softwareengineering.aasfalis.models.Message;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-import static com.softwareengineering.aasfalis.client.ClientService.sendObject;
 
 public class MessageFragment extends Fragment {
 
@@ -57,7 +56,7 @@ public class MessageFragment extends Fragment {
                     SimpleDateFormat mdformat = new SimpleDateFormat("HH:mm");
                     String strDate = mdformat.format(calendar.getTime());
 
-                    sendObject(new Message("Matteo", "Erik", msgTxt.getText().toString(), strDate));
+                    //sendObject(new Message("Matteo", "Erik", msgTxt.getText().toString(), strDate));
                     messageHandler.addMessage(new Message("Matteo", "Erik", msgTxt.getText().toString(), strDate));
                     adapter.notifyItemInserted(messageHandler.lastIndex());
 

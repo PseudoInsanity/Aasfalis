@@ -77,14 +77,33 @@ public class Database {
     public void addFriend (NewFriend newFriend) {
 
         Map<String, Object> friend = new HashMap<>();
-        friend.put("eMail", newFriend.getReveiverMail());
 
-        db.collection("users").document(newFriend.getSenderMail()).collection("friends").document(newFriend.getReveiverMail())
+        DocumentReference docRef = db.collection("users").document(newFriend.getRecieverMail());
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+                        friend.put("userID", document.get("userid"));
+                        friend.put("firstName", document.get("firstName"));
+                        friend.put("lastName", document.get("lastName"));
+                        friend.put("eMail", document.get("email"));
+                    } else {
+                        Log.d(TAG, "No such document");
+                    }
+                } else {
+                    Log.d(TAG, "get failed with ", task.getException());
+                }
+            }
+        });
+
+        db.collection("users").document(newFriend.getSenderMail()).collection("friends").document(newFriend.getRecieverMail())
                 .set(friend)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -94,11 +113,32 @@ public class Database {
                     }
                 });
 
-        friend = new HashMap<>();
-        friend.put("eMail", newFriend.getSenderMail());
 
-        db.collection("users").document(newFriend.getReveiverMail()).collection("friends").document(newFriend.getSenderMail())
-                .set(friend)
+        Map<String, Object> user = new HashMap<>();
+
+        docRef = db.collection("users").document(newFriend.getSenderMail());
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+                        user.put("userID", document.get("userid"));
+                        user.put("firstName", document.get("firstName"));
+                        user.put("lastName", document.get("lastName"));
+                        user.put("eMail", document.get("email"));
+                    } else {
+                        Log.d(TAG, "No such document");
+                    }
+                } else {
+                    Log.d(TAG, "get failed with ", task.getException());
+                }
+            }
+        });
+
+        db.collection("users").document(newFriend.getRecieverMail()).collection("friends").document(newFriend.getSenderMail())
+                .set(user)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {

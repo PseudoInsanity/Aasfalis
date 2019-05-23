@@ -62,6 +62,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import static com.softwareengineering.aasfalis.client.ClientService.breakLoop;
+import static com.softwareengineering.aasfalis.client.ClientService.forceOut;
+
 public class MainActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener,
         OnMapReadyCallback,
@@ -115,11 +118,11 @@ public class MainActivity extends AppCompatActivity implements
         navigationView.setCheckedItem(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-
         checkUserLocationPermission();
 
-        stopService(new Intent(this, ClientService.class));
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            breakLoop();
+            forceOut();
             startService(new Intent(this, ClientService.class));
         }
 
@@ -469,6 +472,7 @@ public class MainActivity extends AppCompatActivity implements
 
     private void signOut() {
         FirebaseAuth.getInstance().signOut();
+        System.out.println("USER: " + FirebaseAuth.getInstance().getCurrentUser());
         stopService(new Intent(this, ClientService.class));
     }
 
