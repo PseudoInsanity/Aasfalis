@@ -6,6 +6,9 @@ import android.os.AsyncTask;
 import android.os.IBinder;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.softwareengineering.aasfalis.adapters.MessageAdapter;
+import com.softwareengineering.aasfalis.adapters.MessageHandler;
+import com.softwareengineering.aasfalis.models.Message;
 import com.softwareengineering.aasfalis.models.NewFriend;
 import com.softwareengineering.aasfalis.models.User;
 
@@ -70,8 +73,9 @@ public class ClientService extends Service {
         private ObjectOutputStream dataOutputStream;
         private ObjectInputStream dataInputStream;
         private Object object;
-        private NewFriend newFriend;
         private Database database;
+        private MessageHandler messageHandler;
+        private MessageAdapter adapter;
 
         private Client() {}
 
@@ -81,6 +85,8 @@ public class ClientService extends Service {
             if (connectToServer()) {
 
                 database = new Database();
+                messageHandler = new MessageHandler();
+                adapter = new MessageAdapter(messageHandler.getMessages(), null);
 
                 while (FirebaseAuth.getInstance().getCurrentUser() != null) {
 
@@ -91,11 +97,11 @@ public class ClientService extends Service {
                         }
                         object = dataInputStream.readObject();
 
-                        if (object instanceof NewFriend) {
-                            newFriend = (NewFriend) object;
-                            database.addFriend(newFriend);
-
+                        if (object instanceof Message) {
+                            messageHandler.addMessage((Message) object);
+                            adapter.notifyItemChanged(messageHandler.lastIndex());
                         }
+
 
 
                     } catch (Exception e) {

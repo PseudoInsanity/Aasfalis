@@ -26,6 +26,7 @@
         android:layout_marginLeft="8dp"
         android:layout_marginTop="4dp"
         android:text="John Doe"
+        android:textColor="@color/colorPrimary"
         android:textSize="12sp"
         app:layout_constraintLeft_toRightOf="@+id/friend_img"
         app:layout_constraintTop_toTopOf="parent" />
@@ -53,6 +54,7 @@
         android:layout_marginLeft="4dp"
         android:text="11:40"
         android:textSize="10sp"
+        android:textColor="@color/colorPrimary"
         app:layout_constraintBottom_toBottomOf="@+id/friend_msg"
         app:layout_constraintLeft_toRightOf="@+id/friend_msg" />
 

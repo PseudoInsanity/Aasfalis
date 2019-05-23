@@ -5,15 +5,16 @@ import java.io.Serializable;
 public class Message implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private String from, to;
+    private String from, to, username;
     private String message;
     private String time;
 
-    public Message(String from, String to, String message, String time) {
+    public Message(String from, String to, String message, String time, String username) {
         this.from = from;
         this.to = to;
         this.message = message;
         this.time = time;
+        this.username = username;
     }
 
     public String getFrom() {
@@ -30,5 +31,9 @@ public class Message implements Serializable {
 
     public String getTime() {
         return time;
+    }
+
+    public String getUsername() {
+        return username;
     }
 }

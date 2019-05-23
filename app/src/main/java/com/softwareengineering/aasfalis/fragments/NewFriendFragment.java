@@ -13,12 +13,14 @@ import android.widget.EditText;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.softwareengineering.aasfalis.R;
+import com.softwareengineering.aasfalis.client.Database;
 import com.softwareengineering.aasfalis.models.NewFriend;
 
 public class NewFriendFragment extends DialogFragment {
 
     private EditText friendEmail;
     private Button sendReq;
+    private Database database;
 
     @Nullable
     @Override
@@ -27,13 +29,14 @@ public class NewFriendFragment extends DialogFragment {
 
         friendEmail = view.findViewById(R.id.friendEmailTxt);
         sendReq = view.findViewById(R.id.sendFriendReqBtn);
+        database = new Database();
 
         sendReq.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String fEmail = friendEmail.getText().toString();
                 if (isEmailValid(fEmail)) {
-                    //sendObject(new NewFriend(FirebaseAuth.getInstance().getCurrentUser().getEmail(), fEmail));
+                    database.addRequest(new NewFriend(FirebaseAuth.getInstance().getCurrentUser().getEmail(), fEmail));
                 }
             }
         });

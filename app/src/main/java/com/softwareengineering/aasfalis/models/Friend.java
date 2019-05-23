@@ -4,12 +4,12 @@ public class Friend {
 
     private String firstName;
     private String lastName;
-    private String userID;
+    private String eMail;
 
-    public Friend(String firstName, String lastName, String userID) {
+    public Friend(String firstName, String lastName, String eMail) {
         this.firstName = firstName;
         this.lastName = lastName;
-        this.userID = userID;
+        this.eMail = eMail;
     }
 
     public String getFirstName() {
@@ -20,7 +20,8 @@ public class Friend {
         return lastName;
     }
 
-    public String getUserID() {
-        return userID;
+    public String geteMail() {
+        return eMail;
     }
+
 }
