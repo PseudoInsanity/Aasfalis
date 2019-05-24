@@ -125,11 +125,10 @@ public class MainActivity extends AppCompatActivity implements
             Database database = new Database();
             database.readCurrentUser();
             friendHandler = new FriendHandler();
-            friendHandler.fillRequestList();
-            friendHandler.fillFriendList();
+            friendHandler.execute();
             breakLoop();
             forceOut();
-            startService(new Intent(this, ClientService.class));
+            //startService(new Intent(this, ClientService.class));
         }
 
         MapFragment mapFragment = (MapFragment) getFragmentManager()

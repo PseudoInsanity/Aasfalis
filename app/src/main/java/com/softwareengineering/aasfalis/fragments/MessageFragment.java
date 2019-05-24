@@ -52,7 +52,7 @@ public class MessageFragment extends DialogFragment {
         sendBtn = view.findViewById(R.id.msgSendBtn);
         msgTxt = view.findViewById(R.id.userMsgTxt);
         messageHandler = new MessageHandler();
-        toolbar = view.findViewById(R.id.friend_toolbar);
+        toolbar = view.findViewById(R.id.friendToolbar);
 
         toolbar.setTitle(currentFriend.getFirstName());
 

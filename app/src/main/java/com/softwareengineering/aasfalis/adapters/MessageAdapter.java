@@ -20,10 +20,12 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     private ArrayList<Message> messages;
     private Friend currentFriend;
+    private MessageHandler messageHandler;
     private AdapterView.OnItemClickListener mListener;
 
     public MessageAdapter(ArrayList<Message> messageArrayList, Friend currentFriend) {
 
+        this.messageHandler = new MessageHandler();
         this.messages = messageArrayList;
         this.currentFriend = currentFriend;
     }
@@ -53,6 +55,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             if (messages.get(i).getFrom().equals(FirebaseAuth.getInstance().getCurrentUser().getEmail())) {
 
                 sendLayout((ViewHolderSend) viewHolder, i);
+                messageHandler.addMessage(me);
 
             } else {
 
