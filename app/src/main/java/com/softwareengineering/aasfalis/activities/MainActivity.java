@@ -207,6 +207,7 @@ public class MainActivity extends AppCompatActivity implements
                     tag = "LoginFragment";
                     hideActionBar();
                     drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                    mMap.setOnMapClickListener(null);
                 }
                 break;
             case R.id.nav_friends:
@@ -232,7 +233,7 @@ public class MainActivity extends AppCompatActivity implements
         transaction.addToBackStack(null);
         transaction.commit();
 
-      //  mMap.setOnMapClickListener(null);
+        //  mMap.setOnMapClickListener(null);
         navigationView.getMenu().getItem(0).setChecked(true);
         drawer.closeDrawer(GravityCompat.START);
     }
@@ -473,8 +474,8 @@ public class MainActivity extends AppCompatActivity implements
                     Marker marker = mMap.addMarker(new MarkerOptions()
                             .position(endLocation)
                             .title(address)
-                            .snippet("Duration: " + polylineData.getLeg().duration
-                            ).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+                            .snippet("Duration: " + polylineData.getLeg().duration)
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
 
                     marker.showInfoWindow();
                 } catch (Exception ex) {
