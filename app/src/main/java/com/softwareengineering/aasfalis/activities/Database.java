@@ -25,14 +25,15 @@ public class Database {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 //    ProfileFragment profile = new ProfileFragment();
 
-    public void addUser(String id, String firstName, String lastName, String email){
+    public void addUser(String id, String firstName, String lastName, String email, String phone){
         Map<String, Object> user = new HashMap<>();
         user.put("userID", id);
         user.put("firstName", firstName);
         user.put("lastName", lastName);
         user.put("email", email);
+        user.put("phone", phone);
 
-        db.collection("users").document(id)
+        db.collection("users").document(email)
                 .set(user)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override

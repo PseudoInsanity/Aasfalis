@@ -24,7 +24,7 @@ public class ProfileFragment extends Fragment {
     //Database database = new Database();
     private String name;
     private String currentUserEmail;
-    private TextView userFirstName, userLastName, userEmail, phone, currentUsername;
+    private TextView userFirstName, userLastName, userEmail, userPhone, currentUsername;
 
     @Nullable
     @Override
@@ -33,16 +33,15 @@ public class ProfileFragment extends Fragment {
         userFirstName = view.findViewById(R.id.firstName);
         userLastName = view.findViewById(R.id.lastName);
         userEmail = view.findViewById(R.id.email);
-        phone = view.findViewById(R.id.phone);
+        userPhone = view.findViewById(R.id.phone);
         currentUsername = view.findViewById(R.id.user_name);
 
         currentUserEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
         getFirstName(currentUserEmail);
         getLastName(currentUserEmail);
         userEmail.setText(currentUserEmail);
-        phone.setText("12345678");
+        getPhone(currentUserEmail);
         currentUsername.setText(currentUserEmail);
-        //getPhone(currentUserEmail);
 
         return view;
     }
@@ -88,20 +87,14 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 if (documentSnapshot.exists()) {
-                    String firstName = documentSnapshot.getString("firstName");
-                    Log.d(TAG, "DocumentSnapshot data: " + firstName);
-                    userFirstName.setText(firstName);
+                    String phone = documentSnapshot.getString("phone");
+                    Log.d(TAG, "DocumentSnapshot data: " + phone);
+                    userPhone.setText(phone);
                 } else {
                     Log.d(TAG, "No such document");
                 }
             }
         });
-    }
-
-    public String getUserFirstName(){
-
-
-        return name;
     }
 
 }
