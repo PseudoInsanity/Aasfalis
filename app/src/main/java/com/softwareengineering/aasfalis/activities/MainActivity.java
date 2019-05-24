@@ -4,40 +4,33 @@ import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
+import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Rect;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.view.View;
-import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.Toast;
-import android.os.Build;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -48,39 +41,45 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
-import com.google.maps.DirectionsApiRequest;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.maps.GeoApiContext;
-import com.google.maps.PendingResult;
-import com.google.maps.model.DirectionsResult;
 import com.softwareengineering.aasfalis.R;
+import com.softwareengineering.aasfalis.adapters.FriendHandler;
+import com.softwareengineering.aasfalis.client.ClientService;
+import com.softwareengineering.aasfalis.client.Database;
 import com.softwareengineering.aasfalis.fragments.DirectionsFragment;
+import com.softwareengineering.aasfalis.fragments.FriendFragment;
 import com.softwareengineering.aasfalis.fragments.LoginFragment;
+import com.softwareengineering.aasfalis.fragments.MessageFragment;
 import com.softwareengineering.aasfalis.fragments.ProfileFragment;
-import com.softwareengineering.aasfalis.fragments.RegisterFragment;
+import com.softwareengineering.aasfalis.models.Friend;
 import com.softwareengineering.aasfalis.models.PolylineData;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import static com.softwareengineering.aasfalis.client.ClientService.breakLoop;
+import static com.softwareengineering.aasfalis.client.ClientService.forceOut;
+
 public class MainActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener,
         OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        LocationListener, GoogleMap.OnPolylineClickListener {
+        LocationListener {
 
+    private static final int REQUEST_USER_LOCATION_CODE = 99;
     public GoogleMap mMap;
+    public Location lastLocation;
     private GoogleApiClient googleApiClient;
     private LocationRequest locationRequest;
-    public Location lastLocation;
     private Marker currentUserLocationMarker;
     private DrawerLayout drawer;
     private Toolbar toolbar;
@@ -89,13 +88,10 @@ public class MainActivity extends AppCompatActivity implements
     private FloatingActionButton fab;
     private GeoApiContext geoApiContext;
     private ArrayList<PolylineData> mPolylineData = new ArrayList<>();
-
+    private FriendHandler friendHandler;
     // holds the original Toolbar height.
     // this can also be obtained via (an)other method(s)
     private int mToolbarHeight, mAnimDuration = 600/* milliseconds */;
-
-    private static final int REQUEST_USER_LOCATION_CODE = 99;
-
     //Fragments
     private LoginFragment loginFragment = (LoginFragment) getSupportFragmentManager().findFragmentByTag("LoginFragment");
     private ProfileFragment profileFragment = (ProfileFragment) getSupportFragmentManager().findFragmentByTag("ProfileFragment");
@@ -107,6 +103,7 @@ public class MainActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().permitNetwork().build());
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(view -> openDirectionsFragment());
@@ -122,14 +119,33 @@ public class MainActivity extends AppCompatActivity implements
         navigationView.setCheckedItem(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-
         checkUserLocationPermission();
+
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            Database database = new Database();
+            database.readCurrentUser();
+            friendHandler = new FriendHandler();
+            friendHandler.execute();
+            breakLoop();
+            forceOut();
+            startService(new Intent(this, ClientService.class));
+        }
 
         MapFragment mapFragment = (MapFragment) getFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
     }
 
     @Override
@@ -175,12 +191,14 @@ public class MainActivity extends AppCompatActivity implements
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            signOut();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
+    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         selectDrawerItem(item);
@@ -196,7 +214,7 @@ public class MainActivity extends AppCompatActivity implements
 
         switch (id) {
             case R.id.nav_profile:
-                if (LoginFragment.loggedIn) {
+                if (FirebaseAuth.getInstance().getCurrentUser() != null) {
                     fragmentClass = ProfileFragment.class;
                     tag = "ProfileFragment";
                     hideActionBar();
@@ -211,12 +229,28 @@ public class MainActivity extends AppCompatActivity implements
                 }
                 break;
             case R.id.nav_friends:
+                if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+                    fragmentClass = FriendFragment.class;
+                    tag = "FriendFragment";
+                    hideActionBar();
+                    drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+
+                } else {
+                    fragmentClass = LoginFragment.class;
+                    tag = "LoginFragment";
+                    hideActionBar();
+                    drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                }
                 break;
             case R.id.nav_settings:
                 break;
             case R.id.nav_share:
                 break;
             case R.id.nav_send:
+                fragmentClass = MessageFragment.class;
+                tag = "MessageFrag";
+                hideActionBar();
+                drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                 break;
         }
 
@@ -450,7 +484,12 @@ public class MainActivity extends AppCompatActivity implements
         hideActionBar();
     }
 
-    @Override
+    private void signOut() {
+        FirebaseAuth.getInstance().signOut();
+        System.out.println("USER: " + FirebaseAuth.getInstance().getCurrentUser());
+        stopService(new Intent(this, ClientService.class));
+    }
+
     public void onPolylineClick(Polyline polyline) {
         for (PolylineData polylineData : DirectionsFragment.mPolylineData) {
             Log.d("Edmir", "onPolylineClick: toString: " + polylineData.toString());
@@ -490,5 +529,11 @@ public class MainActivity extends AppCompatActivity implements
         hideActionBar();
     }
 
-}
+    public void showMsgFrag(Friend friend) {
 
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        MessageFragment messageFragment = new MessageFragment();
+        messageFragment.setArguments(friend);
+        messageFragment.show(fragmentManager, "MessageFragment");
+    }
+}

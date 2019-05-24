@@ -23,7 +23,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.softwareengineering.aasfalis.R;
-import com.softwareengineering.aasfalis.activities.Database;
+import com.softwareengineering.aasfalis.client.Database;
 
 import java.util.Objects;
 
@@ -39,6 +39,7 @@ public class RegisterFragment extends Fragment {
     private String lastName;
     private String phone;
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -52,6 +53,7 @@ public class RegisterFragment extends Fragment {
         phoneTxt = view.findViewById(R.id.phoneTxt);
 
         authUser = FirebaseAuth.getInstance();
+        database = new Database();
 
         //hiding the passwords
         passwordTxt.setTransformationMethod(PasswordTransformationMethod.getInstance());
@@ -118,6 +120,7 @@ public class RegisterFragment extends Fragment {
                         database.addUser(userID, firstName, lastName, eMail, phone);
 
                         user.sendEmailVerification();
+                        database.addUser(user.getUid(), firstNameTxt.getText().toString(), lastNameTxt.getText().toString(), user.getEmail());
 
                         Toast.makeText(getContext(), "Verification mail sent!",
                                 Toast.LENGTH_LONG).show();

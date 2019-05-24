@@ -5,7 +5,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -16,7 +15,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
@@ -26,14 +24,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
@@ -51,14 +46,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.softwareengineering.aasfalis.R;
 import com.softwareengineering.aasfalis.activities.MainActivity;
+import com.softwareengineering.aasfalis.adapters.FriendHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 
 import static android.content.ContentValues.TAG;
 
@@ -66,6 +59,7 @@ public class LoginFragment extends Fragment {
 
     private static final int REQUEST_USER_LOCATION_CODE = 99;
     private FirebaseAuth firebaseAuth;
+    private FriendHandler friendHandler;
 
     private CallbackManager callbackManager;
 
@@ -75,8 +69,6 @@ public class LoginFragment extends Fragment {
     private TextView txtName, txtEmail, signup, forgotPass;
     private AppCompatCheckBox checkBox;
     private FloatingActionButton fab;
-
-    public static boolean loggedIn;
 
     AccessToken accessToken = AccessToken.getCurrentAccessToken();
     boolean isLoggedIn = accessToken != null && !accessToken.isExpired();
@@ -96,6 +88,7 @@ public class LoginFragment extends Fragment {
         signup = inflate.findViewById(R.id.sign_up_txt);
         forgotPass = inflate.findViewById(R.id.forgot_password_txt);
 
+        friendHandler = new FriendHandler();
 
         callbackManager = CallbackManager.Factory.create();
 
@@ -189,7 +182,6 @@ public class LoginFragment extends Fragment {
         fbLoginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                loggedIn = true;
                 Log.d("Edmir", "Success");
                 LoginManager.getInstance().logInWithReadPermissions(LoginFragment.this, Arrays.asList("public_profile", "user_friends", "email"));
                 Toast.makeText(getContext(), "Facebook login success!",
@@ -265,7 +257,6 @@ public class LoginFragment extends Fragment {
                             FirebaseUser user = firebaseAuth.getCurrentUser();
 
                             if (user.isEmailVerified()) {
-                                loggedIn = true;
                                 Intent intent = new Intent(v.getContext(), MainActivity.class);
                                 startActivity(intent);
 
@@ -287,11 +278,11 @@ public class LoginFragment extends Fragment {
                 });
     }
 
-    private boolean isEmailValid(String mail) {
+    public boolean isEmailValid(String mail) {
         return mail.contains("@");
     }
 
-    private boolean isPasswordValid(String password) {
+    public boolean isPasswordValid(String password) {
         return password.matches("[0-9a-zA-Z]{6,16}");
     }
 

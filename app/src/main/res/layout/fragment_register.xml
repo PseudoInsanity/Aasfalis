@@ -46,9 +46,9 @@
         android:layout_marginTop="100dp"
         android:layout_marginEnd="20dp"
         android:background="@drawable/my_edit_text"
-        android:hint="   Password"
-
         android:gravity="center"
+
+        android:hint="   Password"
         android:textAlignment="textStart"
         android:textColorHint="#d9d9d9"
         app:layout_constraintEnd_toEndOf="parent"
