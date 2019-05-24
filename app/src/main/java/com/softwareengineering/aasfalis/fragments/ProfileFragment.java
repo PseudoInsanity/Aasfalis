@@ -30,8 +30,8 @@ public class ProfileFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_profile, container, false);
-        userFirstName = view.findViewById(R.id.firstName);
-        userLastName = view.findViewById(R.id.lastName);
+        userFirstName = view.findViewById(R.id.first_name);
+        userLastName = view.findViewById(R.id.last_name);
         userEmail = view.findViewById(R.id.email);
         userPhone = view.findViewById(R.id.phone);
         currentUsername = view.findViewById(R.id.user_name);
@@ -39,6 +39,7 @@ public class ProfileFragment extends Fragment {
         currentUserEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
         getFirstName(currentUserEmail);
         getLastName(currentUserEmail);
+
         userEmail.setText(currentUserEmail);
         getPhone(currentUserEmail);
         currentUsername.setText(currentUserEmail);
