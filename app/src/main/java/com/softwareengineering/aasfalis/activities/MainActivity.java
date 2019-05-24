@@ -128,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements
             friendHandler.execute();
             breakLoop();
             forceOut();
-            //startService(new Intent(this, ClientService.class));
+            startService(new Intent(this, ClientService.class));
         }
 
         MapFragment mapFragment = (MapFragment) getFragmentManager()

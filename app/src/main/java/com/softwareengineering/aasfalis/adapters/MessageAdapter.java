@@ -55,7 +55,6 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             if (messages.get(i).getFrom().equals(FirebaseAuth.getInstance().getCurrentUser().getEmail())) {
 
                 sendLayout((ViewHolderSend) viewHolder, i);
-                messageHandler.addMessage(me);
 
             } else {
 
