@@ -23,6 +23,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.softwareengineering.aasfalis.R;
+import com.softwareengineering.aasfalis.activities.Database;
 
 import java.util.Objects;
 
@@ -32,6 +33,11 @@ public class RegisterFragment extends Fragment {
     private Button registerBtn;
     private EditText emailTxt, passwordTxt, confirmTxt, firstNameTxt, lastNameTxt, phoneTxt;
     private FirebaseAuth authUser;
+    private Database database = new Database();
+    private String eMail;
+    private String firstName;
+    private String lastName;
+    private String phone;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -54,12 +60,12 @@ public class RegisterFragment extends Fragment {
 
         registerBtn.setOnClickListener(v -> {
 
-            String eMail = emailTxt.getText().toString();
             String passw = passwordTxt.getText().toString();
             String confirmPass = confirmTxt.getText().toString();
-            String firstName = firstNameTxt.getText().toString();
-            String lastName = lastNameTxt.getText().toString();
-            String phone = phoneTxt.getText().toString();
+            eMail = emailTxt.getText().toString();
+            firstName = firstNameTxt.getText().toString();
+            lastName = lastNameTxt.getText().toString();
+            phone = phoneTxt.getText().toString();
 
             if (isEmailValid(eMail) && isPasswordValid(passw) && passw.equals(confirmPass)
                     && !firstName.isEmpty() && !lastName.isEmpty() && isPhoneMatching(phone)) {
@@ -107,6 +113,10 @@ public class RegisterFragment extends Fragment {
                         // Sign in success, update UI with the signed-in user's information
                         Log.d(TAG, "createUserWithEmail:success");
                         FirebaseUser user = authUser.getCurrentUser();
+
+                        String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                        database.addUser(userID, firstName, lastName, eMail, phone);
+
                         user.sendEmailVerification();
 
                         Toast.makeText(getContext(), "Verification mail sent!",
