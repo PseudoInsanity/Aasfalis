@@ -16,6 +16,12 @@
     <color name="buttonOrange">#E67E22</color>
     <color name="olive">#C1BC54</color>
     <color name="darkGrey">#737373 </color>
+    <color name="start">#003973</color>
+    <color name="end">#E5E5BE</color>
+    <color name="center">#003980</color>
+    <color name="directions_start">#09a4ed</color>
+    <color name="directions_center">#0d6bd8</color>
+    <color name="directions_end">#0503a8</color>
 
 
 
