@@ -29,9 +29,10 @@ public class Database {
         return currentName;
     }
 
-    public void addUser(String id, String fName, String lName, String eMail){
+    public void addUser(String id, String fName, String lName, String eMail, String username){
         Map<String, Object> user = new HashMap<>();
         user.put("userid", id);
+        user.put("username", username);
         user.put("firstName", fName);
         user.put("lastName", lName);
         user.put("email", eMail);
@@ -102,6 +103,7 @@ public class Database {
                         friend.put("firstName", Objects.requireNonNull(document.get("firstName")));
                         friend.put("lastName", Objects.requireNonNull(document.get("lastName")));
                         friend.put("eMail", Objects.requireNonNull(document.get("email")));
+                        friend.put("username", Objects.requireNonNull(document.get("username")));
 
                         db.collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getEmail()).collection("friends").document(newFriend.geteMail())
                                 .set(friend)

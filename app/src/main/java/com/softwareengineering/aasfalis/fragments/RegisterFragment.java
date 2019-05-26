@@ -31,13 +31,14 @@ import static android.content.ContentValues.TAG;
 
 public class RegisterFragment extends Fragment {
     private Button registerBtn;
-    private EditText emailTxt, passwordTxt, confirmTxt, firstNameTxt, lastNameTxt, phoneTxt;
+    private EditText emailTxt, passwordTxt, confirmTxt, firstNameTxt, lastNameTxt, phoneTxt, usernameTxt;
     private FirebaseAuth authUser;
     private Database database = new Database();
     private String eMail;
     private String firstName;
     private String lastName;
     private String phone;
+    private String username;
 
 
     @Override
@@ -51,6 +52,7 @@ public class RegisterFragment extends Fragment {
         firstNameTxt = view.findViewById(R.id.firstNameTxt);
         lastNameTxt = view.findViewById(R.id.lastNameTxt);
         phoneTxt = view.findViewById(R.id.phoneTxt);
+        usernameTxt = view.findViewById(R.id.usernameTxt);
 
         authUser = FirebaseAuth.getInstance();
         database = new Database();
@@ -68,6 +70,8 @@ public class RegisterFragment extends Fragment {
             firstName = firstNameTxt.getText().toString();
             lastName = lastNameTxt.getText().toString();
             phone = phoneTxt.getText().toString();
+            username = usernameTxt.getText().toString();
+
 
             if (isEmailValid(eMail) && isPasswordValid(passw) && passw.equals(confirmPass)
                     && !firstName.isEmpty() && !lastName.isEmpty() && isPhoneMatching(phone)) {
@@ -120,7 +124,7 @@ public class RegisterFragment extends Fragment {
                         database.addUser(userID, firstName, lastName, eMail, phone);
 
                         user.sendEmailVerification();
-                        database.addUser(user.getUid(), firstNameTxt.getText().toString(), lastNameTxt.getText().toString(), user.getEmail());
+                        database.addUser(user.getUid(), firstNameTxt.getText().toString(), lastNameTxt.getText().toString(), user.getEmail(), usernameTxt.getText().toString());
 
                         Toast.makeText(getContext(), "Verification mail sent!",
                                 Toast.LENGTH_LONG).show();
