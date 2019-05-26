@@ -4,12 +4,18 @@ import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
+import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.StrictMode;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -25,15 +31,18 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
@@ -44,11 +53,26 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.AutocompleteActivity;
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
+import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.maps.DirectionsApiRequest;
 import com.google.maps.GeoApiContext;
+import com.google.maps.PendingResult;
+import com.google.maps.internal.PolylineEncoding;
+import com.google.maps.model.DirectionsResult;
+import com.google.maps.model.DirectionsRoute;
 import com.softwareengineering.aasfalis.R;
 import com.softwareengineering.aasfalis.adapters.FriendHandler;
 import com.softwareengineering.aasfalis.client.ClientService;
@@ -62,6 +86,7 @@ import com.softwareengineering.aasfalis.models.Friend;
 import com.softwareengineering.aasfalis.models.PolylineData;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -76,8 +101,14 @@ public class MainActivity extends AppCompatActivity implements
         LocationListener {
 
     private static final int REQUEST_USER_LOCATION_CODE = 99;
+    private static final int AUTOCOMPLETE_REQUEST_CODE = 1;
+
+    private int mToolbarHeight, mAnimDuration = 600;
+
     public GoogleMap mMap;
     public Location lastLocation;
+    public Marker mSelectedMarker = null;
+
     private GoogleApiClient googleApiClient;
     private LocationRequest locationRequest;
     private Marker currentUserLocationMarker;
@@ -89,9 +120,12 @@ public class MainActivity extends AppCompatActivity implements
     private GeoApiContext geoApiContext;
     private ArrayList<PolylineData> mPolylineData = new ArrayList<>();
     private FriendHandler friendHandler;
-    // holds the original Toolbar height.
-    // this can also be obtained via (an)other method(s)
-    private int mToolbarHeight, mAnimDuration = 600/* milliseconds */;
+    private ArrayList<Marker> mTripMarkers = new ArrayList<>();
+    private String address;
+
+
+    private Polyline polyline;
+
     //Fragments
     private LoginFragment loginFragment = (LoginFragment) getSupportFragmentManager().findFragmentByTag("LoginFragment");
     private ProfileFragment profileFragment = (ProfileFragment) getSupportFragmentManager().findFragmentByTag("ProfileFragment");
@@ -105,8 +139,14 @@ public class MainActivity extends AppCompatActivity implements
         setSupportActionBar(toolbar);
         StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().permitNetwork().build());
 
+        // Initialize Places.
+        Places.initialize(getApplicationContext(), "AIzaSyDs7FtleHttwUBwTngT1PG8sOZeoc5O_vQ");
+
+        // Create a new Places client instance.
+        PlacesClient placesClient = Places.createClient(this);
+
         fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(view -> openDirectionsFragment());
+        fab.setOnClickListener(view -> findPlace());
 
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 
@@ -134,7 +174,6 @@ public class MainActivity extends AppCompatActivity implements
         MapFragment mapFragment = (MapFragment) getFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
 
     }
 
@@ -164,15 +203,6 @@ public class MainActivity extends AppCompatActivity implements
         }
         navigationView.getMenu().getItem(0).setChecked(false);
         addListener();
-       /* if (fab.isOrWillBeHidden() && loginFragment != null && !loginFragment.isVisible()) {
-            fab.show();
-            showActionBar();
-        } else if (profileFragment != null && profileFragment.isVisible()) {
-            showActionBar();
-            fab.show();
-        } else if (directionsFragment != null && directionsFragment.isVisible()) {
-            showActionBar();
-        } */
     }
 
     @Override
@@ -198,7 +228,6 @@ public class MainActivity extends AppCompatActivity implements
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         selectDrawerItem(item);
@@ -243,6 +272,7 @@ public class MainActivity extends AppCompatActivity implements
                 }
                 break;
             case R.id.nav_settings:
+
                 break;
             case R.id.nav_share:
                 break;
@@ -299,7 +329,6 @@ public class MainActivity extends AppCompatActivity implements
 
         googleApiClient.connect();
     }
-
 
     @Override
     public void onLocationChanged(Location location) {
@@ -466,8 +495,53 @@ public class MainActivity extends AppCompatActivity implements
                 hideActionBar();
             } else {
                 showActionBar();
-
             }
+        });
+
+        mMap.setOnInfoWindowClickListener(marker -> {
+            if (marker.getTitle().contains(address)) {
+                final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setMessage("Open Google Maps?")
+                        .setCancelable(true)
+                        .setPositiveButton("Yes", (dialog, id) -> {
+                            String latitude = String.valueOf(marker.getPosition().latitude);
+                            String longitude = String.valueOf(marker.getPosition().longitude);
+                            Uri gmmIntentUri = Uri.parse("google.navigation:q=" + latitude + "," + longitude);
+                            Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                            mapIntent.setPackage("com.google.android.apps.maps");
+
+                            try {
+                                if (mapIntent.resolveActivity(getPackageManager()) != null) {
+                                    startActivity(mapIntent);
+                                }
+                            } catch (NullPointerException e) {
+                                Log.e("Edmir", "onClick: NullPointerException: Couldn't open map." + e.getMessage());
+                                Toast.makeText(getApplicationContext(), "Couldn't open map", Toast.LENGTH_SHORT).show();
+                            }
+
+                        })
+                        .setNegativeButton("No", (dialog, id) -> dialog.cancel());
+                final AlertDialog alert = builder.create();
+                alert.show();
+            } else {
+                if (marker.getSnippet().equals("This is you")) {
+                    marker.hideInfoWindow();
+                } else {
+
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setMessage(marker.getSnippet())
+                            .setCancelable(true)
+                            .setPositiveButton("Yes", (dialog, id) -> {
+                                resetSelectedMarker();
+                                mSelectedMarker = marker;
+                                dialog.dismiss();
+                            })
+                            .setNegativeButton("No", (dialog, id) -> dialog.cancel());
+                    final AlertDialog alert = builder.create();
+                    alert.show();
+                }
+            }
+
         });
     }
 
@@ -509,12 +583,14 @@ public class MainActivity extends AppCompatActivity implements
 
                     addresses = geocoder.getFromLocation(endLocation.latitude, endLocation.longitude, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
 
-                    String address = addresses.get(0).getAddressLine(0);
+                    address = addresses.get(0).getAddressLine(0);
                     Marker marker = mMap.addMarker(new MarkerOptions()
                             .position(endLocation)
                             .title(address)
                             .snippet("Duration: " + polylineData.getLeg().duration)
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+
+                    mTripMarkers.add(marker);
 
                     marker.showInfoWindow();
                 } catch (Exception ex) {
@@ -529,11 +605,166 @@ public class MainActivity extends AppCompatActivity implements
         hideActionBar();
     }
 
+    public void resetSelectedMarker() {
+        if (mSelectedMarker != null) {
+            mSelectedMarker.setVisible(true);
+            mSelectedMarker = null;
+            removeTripMarkers();
+        }
+    }
+
+    public void removeTripMarkers() {
+        for (Marker marker : mTripMarkers) {
+            marker.remove();
+        }
+    }
+
     public void showMsgFrag(Friend friend) {
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         MessageFragment messageFragment = new MessageFragment();
         messageFragment.setArguments(friend);
         messageFragment.show(fragmentManager, "MessageFragment");
+    }
+
+    private void findPlace() {
+        // Set the fields to specify which types of place data to return.
+        List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME);
+        // Start the autocomplete intent.
+        Intent intent = new Autocomplete.IntentBuilder(
+                AutocompleteActivityMode.FULLSCREEN, fields)
+                .build(this);
+        startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
+
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                Place place = Autocomplete.getPlaceFromIntent(data);
+                calculateDirections(place.getLatLng());
+                Log.i("Edmir", "Place: " + place.getName() + ", " + place.getId());
+            } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
+                // TODO: Handle the error.
+                Status status = Autocomplete.getStatusFromIntent(data);
+                Log.i("Edmir", status.getStatusMessage());
+            } else if (resultCode == RESULT_CANCELED) {
+                // The user canceled the operation.
+            }
+        }
+    }
+
+    public void calculateDirections(LatLng latLng) {
+        Log.d("Edmir", "calculateDirections: calculating directions.");
+        DirectionsApiRequest directions = new DirectionsApiRequest(geoApiContext);
+
+        if (latLng != null && lastLocation != null) {
+            directions.alternatives(true);
+            com.google.maps.model.LatLng start = new com.google.maps.model.LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
+
+            Log.d("Edmir", "calculateDirections: calculating directions1.");
+            directions.origin(start);
+            Log.d("Edmir", "calculateDirections: destination: " + latLng.toString());
+            directions.destination(String.valueOf(latLng)).setCallback(new PendingResult.Callback<DirectionsResult>() {
+                @Override
+                public void onResult(DirectionsResult result) {
+                    Log.d("Edmir", "onResult: routes: " + result.routes[0].toString());
+                    Log.d("Edmir", "onResult: duration: " + result.routes[0].legs[0].duration);
+                    Log.d("Edmir", "onResult: distance: " + result.routes[0].legs[0].distance);
+                    Log.d("Edmir", "onResult: geocodedWayPoints: " + result.geocodedWaypoints[0].toString());
+                    addPolylinesToMap(result);
+
+
+                    resetSelectedMarker();
+                    runOnUiThread(() -> zoomRoute(polyline.getPoints()));
+                }
+
+                @Override
+                public void onFailure(Throwable e) {
+                    Log.e("Edmir", "onFailure: " + e.getMessage());
+                }
+            });
+
+        }
+    }
+
+    private void addPolylinesToMap(final DirectionsResult result) {
+        new Handler(Looper.getMainLooper()).post(() -> {
+            Log.d("Edmir", "run: result routes: " + result.routes.length);
+            if (mPolylineData.size() > 0) {
+                for (PolylineData polylineData : mPolylineData) {
+                    polylineData.getPolyline().remove();
+                }
+                mPolylineData.clear();
+                mPolylineData = new ArrayList<>();
+            }
+            double duration = 999999999;
+            for (DirectionsRoute route : result.routes) {
+                Log.d("Edmir", "run: leg: " + route.legs[0].toString());
+                List<com.google.maps.model.LatLng> decodedPath = PolylineEncoding.decode(route.overviewPolyline.getEncodedPath());
+
+                List<LatLng> newDecodedPath = new ArrayList<>();
+
+                // This loops through all the LatLng coordinates of ONE polyline.
+
+                for (com.google.maps.model.LatLng latLng : decodedPath) {
+                    newDecodedPath.add(new LatLng(
+                            latLng.lat,
+                            latLng.lng
+                    ));
+                }
+                polyline = mMap.addPolyline(new PolylineOptions()
+                        .addAll(newDecodedPath)
+                        .width(10)
+                        .color(Color.GRAY)
+                        .geodesic(true)
+                        .clickable(true));
+                mPolylineData.add(new PolylineData(polyline, route.legs[0]));
+
+                // highlight the fastest route and adjust camera
+                double tempDuration = route.legs[0].duration.inSeconds;
+                if (tempDuration < duration) {
+                    duration = tempDuration;
+                    onPolylineClick(polyline);
+                    zoomRoute(polyline.getPoints());
+                }
+
+                if (this != null && getSupportActionBar() != null) {
+                    hideSoftKeyboard(this);
+                    this.onBackPressed();
+                    hideActionBar();
+                }
+            }
+            resetSelectedMarker();
+        });
+    }
+
+
+    public void zoomRoute(List<LatLng> lstLatLngRoute) {
+
+        if (mMap == null || lstLatLngRoute == null || lstLatLngRoute.isEmpty()) return;
+
+        LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
+        for (LatLng latLngPoint : lstLatLngRoute)
+            boundsBuilder.include(latLngPoint);
+
+        int routePadding = 50;
+        LatLngBounds latLngBounds = boundsBuilder.build();
+
+        mMap.animateCamera(
+                CameraUpdateFactory.newLatLngBounds(latLngBounds, routePadding),
+                600,
+                null
+        );
+    }
+
+    public static void hideSoftKeyboard(Activity activity) {
+        InputMethodManager inputMethodManager =
+                (InputMethodManager) activity.getSystemService(
+                        Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(
+                activity.getCurrentFocus().getWindowToken(), 0);
     }
 }

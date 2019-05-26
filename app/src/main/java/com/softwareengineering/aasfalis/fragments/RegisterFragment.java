@@ -117,7 +117,7 @@ public class RegisterFragment extends Fragment {
                         FirebaseUser user = authUser.getCurrentUser();
 
                         String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                        database.addUser(userID, firstName, lastName, eMail, phone);
+                        database.addUser(userID, firstName, lastName, eMail);
 
                         user.sendEmailVerification();
                         database.addUser(user.getUid(), firstNameTxt.getText().toString(), lastNameTxt.getText().toString(), user.getEmail());

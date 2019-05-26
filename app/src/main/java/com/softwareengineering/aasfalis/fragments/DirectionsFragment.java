@@ -1,6 +1,7 @@
 package com.softwareengineering.aasfalis.fragments;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
@@ -18,12 +19,20 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
+import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.maps.DirectionsApiRequest;
 import com.google.maps.GeoApiContext;
 import com.google.maps.PendingResult;
@@ -36,6 +45,7 @@ import com.softwareengineering.aasfalis.models.PolylineData;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -46,7 +56,7 @@ public class DirectionsFragment extends Fragment {
     private EditText locationSearch;
     private MainActivity mainActivity;
     private Button searchButton;
-    private Marker currentUserLocationMarker;
+    private Marker mMarker;
     private Polyline polyline;
 
     public static ArrayList<PolylineData> mPolylineData = new ArrayList<>();
@@ -56,8 +66,6 @@ public class DirectionsFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         final View inflate = inflater.inflate(R.layout.fragment_directions, container, false);
-        locationSearch = (EditText) inflate.findViewById(R.id.to_location_text);
-        searchButton = (Button) inflate.findViewById(R.id.search_button);
         mainActivity = (MainActivity) getActivity();
 
         if (geoApiContext == null) {
@@ -65,15 +73,13 @@ public class DirectionsFragment extends Fragment {
                     .apiKey(getString(R.string.google_maps_key))
                     .build();
         }
-
-        searchButton.setOnClickListener(view -> calculateDirections());
         return inflate;
     }
 
 
-    public com.google.maps.model.LatLng searchLocation() {
+    public com.google.maps.model.LatLng searchLocation(LatLng destination) {
 
-        String location = locationSearch.getText().toString();
+        String location = destination.toString();
         List<Address> addressList = null;
         com.google.maps.model.LatLng latLng = null;
         if (location != null || !location.equals("")) {
@@ -97,19 +103,19 @@ public class DirectionsFragment extends Fragment {
     }
 
 
-    private void calculateDirections() {
+    public void calculateDirections(LatLng latLng) {
         Log.d("Edmir", "calculateDirections: calculating directions.");
 
-        com.google.maps.model.LatLng destination = searchLocation();
+
         DirectionsApiRequest directions = new DirectionsApiRequest(geoApiContext);
 
-        if (directions != null && destination != null) {
+        if (directions != null && latLng != null && mainActivity.lastLocation != null) {
             directions.alternatives(true);
             com.google.maps.model.LatLng start = new com.google.maps.model.LatLng(mainActivity.lastLocation.getLatitude(), mainActivity.lastLocation.getLongitude());
-            directions.origin(start);
 
-            Log.d("Edmir", "calculateDirections: destination: " + destination.toString());
-            directions.destination(destination).setCallback(new PendingResult.Callback<DirectionsResult>() {
+            directions.origin(start);
+            Log.d("Edmir", "calculateDirections: destination: " + latLng.toString());
+            directions.destination(String.valueOf(latLng)).setCallback(new PendingResult.Callback<DirectionsResult>() {
                 @Override
                 public void onResult(DirectionsResult result) {
                     Log.d("Edmir", "onResult: routes: " + result.routes[0].toString());
@@ -118,13 +124,14 @@ public class DirectionsFragment extends Fragment {
                     Log.d("Edmir", "onResult: geocodedWayPoints: " + result.geocodedWaypoints[0].toString());
                     addPolylinesToMap(result);
 
+
+                    mainActivity.resetSelectedMarker();
                     getActivity().runOnUiThread(() -> zoomRoute(polyline.getPoints()));
                 }
 
                 @Override
                 public void onFailure(Throwable e) {
                     Log.e("Edmir", "onFailure: " + e.getMessage());
-
                 }
             });
 
@@ -166,7 +173,7 @@ public class DirectionsFragment extends Fragment {
 
                 // highlight the fastest route and adjust camera
                 double tempDuration = route.legs[0].duration.inSeconds;
-                if(tempDuration < duration){
+                if (tempDuration < duration) {
                     duration = tempDuration;
                     mainActivity.onPolylineClick(polyline);
                     zoomRoute(polyline.getPoints());
@@ -178,6 +185,7 @@ public class DirectionsFragment extends Fragment {
                     mainActivity.hideActionBar();
                 }
             }
+            mainActivity.resetSelectedMarker();
         });
     }
 
