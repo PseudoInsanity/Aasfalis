@@ -124,10 +124,6 @@ public class MainActivity extends AppCompatActivity implements
     private String address;
     private Polyline polyline;
 
-    //Fragments
-    private LoginFragment loginFragment = (LoginFragment) getSupportFragmentManager().findFragmentByTag("LoginFragment");
-    private ProfileFragment profileFragment = (ProfileFragment) getSupportFragmentManager().findFragmentByTag("ProfileFragment");
-    private DirectionsFragment directionsFragment = (DirectionsFragment) getSupportFragmentManager().findFragmentByTag("DirectionsFragment");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -184,6 +180,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onResume() {
         super.onResume();
+        getCallingActivity();
     }
 
     @Override
@@ -536,7 +533,7 @@ public class MainActivity extends AppCompatActivity implements
                     builder.setMessage(marker.getSnippet())
                             .setCancelable(true)
                             .setPositiveButton("Yes", (dialog, id) -> {
-                                //resetSelectedMarker();
+                                resetSelectedMarker();
                                 mSelectedMarker = marker;
                                 dialog.dismiss();
                             })
@@ -569,7 +566,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     public void onPolylineClick(Polyline polyline) {
-        for (PolylineData polylineData : DirectionsFragment.mPolylineData) {
+        for (PolylineData polylineData : mPolylineData) {
             Log.d("Edmir", "onPolylineClick: toString: " + polylineData.toString());
             if (polyline.getId().equals(polylineData.getPolyline().getId())) {
                 polylineData.getPolyline().setColor(ContextCompat.getColor(this, R.color.headings));
@@ -633,13 +630,13 @@ public class MainActivity extends AppCompatActivity implements
 
     private void findPlace() {
         // Set the fields to specify which types of place data to return.
-        List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME,Place.Field.LAT_LNG, Place.Field.ADDRESS);
+        List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG, Place.Field.ADDRESS);
         // Start the autocomplete intent.
+        hideActionBar();
         Intent intent = new Autocomplete.IntentBuilder(
-                AutocompleteActivityMode.FULLSCREEN, fields)
+                AutocompleteActivityMode.OVERLAY, fields)
                 .build(this);
         startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
-
 
     }
 
@@ -649,11 +646,11 @@ public class MainActivity extends AppCompatActivity implements
             if (resultCode == RESULT_OK) {
                 final Place place = Autocomplete.getPlaceFromIntent(data);
                 calculateDirections(place.getAddress());
-                Log.d("Edmir", "Place: " + place.getName() + ", " + place.getLatLng() + ", " + place.getAddress());
 
+                Log.d("Edmir", "Place: " + place.getName() + ", " + place.getLatLng() + ", " + place.getAddress());
             } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
                 Status status = Autocomplete.getStatusFromIntent(data);
-                Log.i("Edmir", status.getStatusMessage());
+                Log.d("Edmir", status.getStatusMessage());
             } else if (resultCode == RESULT_CANCELED) {
                 // The user canceled the operation.
             }
@@ -661,34 +658,34 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void calculateDirections(String address) {
-            Log.d("Edmir", "calculateDirections: calculating directions.");
-            DirectionsApiRequest directions = new DirectionsApiRequest(geoApiContext);
+        Log.d("Edmir", "calculateDirections: calculating directions.");
+        DirectionsApiRequest directions = new DirectionsApiRequest(geoApiContext);
 
-            if (address != null && lastLocation != null) {
-                directions.alternatives(true);
-                com.google.maps.model.LatLng start = new com.google.maps.model.LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
+        if (address != null && lastLocation != null) {
+            directions.alternatives(true);
+            com.google.maps.model.LatLng start = new com.google.maps.model.LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
 
-                directions.origin(start);
-                //Log.d("Edmir", "calculateDirections: destination: " + address);
-                directions.destination(address);
-                directions.setCallback(new PendingResult.Callback<DirectionsResult>() {
-                    @Override
-                    public void onResult(DirectionsResult result) {
-                     //   Log.d("Edmir", "onResult: routes: " + result.routes[0].toString());
-                     //   Log.d("Edmir", "onResult: duration: " + result.routes[0].legs[0].duration);
-                     //   Log.d("Edmir", "onResult: distance: " + result.routes[0].legs[0].distance);
-                     //   Log.d("Edmir", "onResult: geocodedWayPoints: " + result.geocodedWaypoints[0].toString());
-                        addPolylinesToMap(result);
-                        //resetSelectedMarker();
+            directions.origin(start);
+            //Log.d("Edmir", "calculateDirections: destination: " + address);
+            directions.destination(address);
+            directions.setCallback(new PendingResult.Callback<DirectionsResult>() {
+                @Override
+                public void onResult(DirectionsResult result) {
+                    //   Log.d("Edmir", "onResult: routes: " + result.routes[0].toString());
+                    //   Log.d("Edmir", "onResult: duration: " + result.routes[0].legs[0].duration);
+                    //   Log.d("Edmir", "onResult: distance: " + result.routes[0].legs[0].distance);
+                    //   Log.d("Edmir", "onResult: geocodedWayPoints: " + result.geocodedWaypoints[0].toString());
+                    addPolylinesToMap(result);
 
-                        runOnUiThread(() -> zoomRoute(polyline.getPoints()));
-                    }
-                    @Override
-                    public void onFailure(Throwable e) {
-                        Log.e("Edmir", "onFailure: " + e.getMessage());
-                    }
-                });
-            }
+                    //runOnUiThread(() -> zoomRoute(polyline.getPoints()));
+                }
+
+                @Override
+                public void onFailure(Throwable e) {
+                    Log.e("Edmir", "onFailure: " + e.getMessage());
+                }
+            });
+        }
     }
 
     private void addPolylinesToMap(final DirectionsResult result) {
@@ -732,13 +729,8 @@ public class MainActivity extends AppCompatActivity implements
                     zoomRoute(polyline.getPoints());
                 }
 
-                if (this != null && getSupportActionBar() != null) {
-                    hideSoftKeyboard(this);
-                    this.onBackPressed();
-                    hideActionBar();
-                }
             }
-            resetSelectedMarker();
+
         });
     }
 
@@ -751,7 +743,7 @@ public class MainActivity extends AppCompatActivity implements
         for (LatLng latLngPoint : lstLatLngRoute)
             boundsBuilder.include(latLngPoint);
 
-        int routePadding = 50;
+        int routePadding = 300;
         LatLngBounds latLngBounds = boundsBuilder.build();
 
         mMap.animateCamera(
