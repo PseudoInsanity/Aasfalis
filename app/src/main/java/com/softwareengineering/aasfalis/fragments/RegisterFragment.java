@@ -2,12 +2,9 @@ package com.softwareengineering.aasfalis.fragments;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,15 +14,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.softwareengineering.aasfalis.R;
 import com.softwareengineering.aasfalis.client.Database;
-
-import java.util.Objects;
 
 import static android.content.ContentValues.TAG;
 
@@ -34,11 +26,7 @@ public class RegisterFragment extends Fragment {
     private EditText emailTxt, passwordTxt, confirmTxt, firstNameTxt, lastNameTxt, phoneTxt, usernameTxt;
     private FirebaseAuth authUser;
     private Database database = new Database();
-    private String eMail;
-    private String firstName;
-    private String lastName;
-    private String phone;
-    private String username;
+    private String eMail, firstName, lastName, username, phone;
 
 
     @Override
@@ -52,7 +40,7 @@ public class RegisterFragment extends Fragment {
         firstNameTxt = view.findViewById(R.id.firstNameTxt);
         lastNameTxt = view.findViewById(R.id.lastNameTxt);
         phoneTxt = view.findViewById(R.id.phoneTxt);
-        usernameTxt = view.findViewById(R.id.usernameTxt);
+        usernameTxt = view.findViewById(R.id.user_name_reg);
 
         authUser = FirebaseAuth.getInstance();
         database = new Database();
@@ -70,8 +58,6 @@ public class RegisterFragment extends Fragment {
             firstName = firstNameTxt.getText().toString();
             lastName = lastNameTxt.getText().toString();
             phone = phoneTxt.getText().toString();
-            username = usernameTxt.getText().toString();
-
 
             if (isEmailValid(eMail) && isPasswordValid(passw) && passw.equals(confirmPass)
                     && !firstName.isEmpty() && !lastName.isEmpty() && isPhoneMatching(phone)) {
@@ -121,10 +107,10 @@ public class RegisterFragment extends Fragment {
                         FirebaseUser user = authUser.getCurrentUser();
 
                         String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                        database.addUser(userID, firstName, lastName, eMail, phone);
+                        database.addUser(userID, firstName, lastName, eMail, username, phone);
 
                         user.sendEmailVerification();
-                        database.addUser(user.getUid(), firstNameTxt.getText().toString(), lastNameTxt.getText().toString(), user.getEmail(), usernameTxt.getText().toString());
+                        database.addUser(user.getUid(), firstNameTxt.getText().toString(), lastNameTxt.getText().toString(), user.getEmail(), usernameTxt.getText().toString(), phoneTxt.getText().toString());
 
                         Toast.makeText(getContext(), "Verification mail sent!",
                                 Toast.LENGTH_LONG).show();

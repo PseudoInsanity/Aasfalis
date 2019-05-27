@@ -99,82 +99,59 @@ public class LoginFragment extends Fragment {
         checkLoginStatus();
 
 
-        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean value) {
-                if (value) {
-                    //show password
-                    password.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
-                } else {
-                    //hide password
-                    password.setTransformationMethod(PasswordTransformationMethod.getInstance());
-                }
+        checkBox.setOnCheckedChangeListener((compoundButton, value) -> {
+            if (value) {
+                //show password
+                password.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+            } else {
+                //hide password
+                password.setTransformationMethod(PasswordTransformationMethod.getInstance());
             }
         });
 
 
-        signup.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Fragment fragment = new RegisterFragment();
-                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                FragmentTransaction transaction = fragmentManager.beginTransaction();
-                transaction.replace(R.id.map, fragment, "RegisterFragment");
-                transaction.addToBackStack(null);
-                transaction.commit();
-            }
+        signup.setOnClickListener(view -> {
+            Fragment fragment = new RegisterFragment();
+            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+            FragmentTransaction transaction = fragmentManager.beginTransaction();
+            transaction.replace(R.id.map, fragment, "RegisterFragment");
+            transaction.addToBackStack(null);
+            transaction.commit();
         });
 
-        forgotPass.setOnHoverListener(new View.OnHoverListener() {
-            @Override
-            public boolean onHover(View view, MotionEvent motionEvent) {
-                return true;
-            }
-        });
-        forgotPass.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        forgotPass.setOnHoverListener((view, motionEvent) -> true);
+        forgotPass.setOnClickListener(view -> {
+            final EditText editText = new EditText(view.getContext());
+            editText.getBackground().setColorFilter(getResources().getColor(R.color.colorAccent),
+                    PorterDuff.Mode.SRC_ATOP);
+            editText.setTextColor(getResources().getColor(R.color.colorAccent));
+            //  editText.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+            AlertDialog dialog = new AlertDialog.Builder(view.getContext(), R.style.com_facebook_auth_dialog_instructions_textview)
+                    .setTitle("Please enter your email address")
+                    .setView(editText)
+                    .setPositiveButton("Restore Password", (dialog1, which) -> {
 
-                final EditText editText = new EditText(view.getContext());
-                editText.getBackground().setColorFilter(getResources().getColor(R.color.colorAccent), //linexcnkj
-                        PorterDuff.Mode.SRC_ATOP);
-                editText.setTextColor(getResources().getColor(R.color.colorAccent));
-                //  editText.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
-                AlertDialog dialog = new AlertDialog.Builder(view.getContext(), R.style.com_facebook_auth_dialog_instructions_textview)
-                        .setTitle("Please enter your email address")
-                        .setView(editText)
-                        .setPositiveButton("Restore Password", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
+                        firebaseAuth = FirebaseAuth.getInstance();
 
-                                firebaseAuth = FirebaseAuth.getInstance();
-
-                                String emailAddress = editText.getText().toString();
-                                if (!emailAddress.isEmpty()) {
-                                    firebaseAuth.sendPasswordResetEmail(emailAddress)
-                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<Void> task) {
-                                                    if (task.isSuccessful()) {
-                                                        new AlertDialog.Builder(getContext(), R.style.com_facebook_auth_dialog)
-                                                                .setTitle("Email Sent!")
-                                                                .setMessage("Please follow the link in your email")
-                                                                // A null listener allows the button to dismiss the dialog and take no further action.
-                                                                .setNegativeButton(android.R.string.no, null)
-                                                                .setIcon(android.R.drawable.ic_dialog_info)
-                                                                .show();
-                                                    }
-                                                }
-                                            });
-                                }
-
-
-                            }
-                        })
-                        .setNegativeButton("Cancel", null)
-                        .create();
-                dialog.show();
-            }
+                        String emailAddress = editText.getText().toString();
+                        if (!emailAddress.isEmpty()) {
+                            firebaseAuth.sendPasswordResetEmail(emailAddress)
+                                    .addOnCompleteListener(task -> {
+                                        if (task.isSuccessful()) {
+                                            new AlertDialog.Builder(getContext(), R.style.com_facebook_auth_dialog)
+                                                    .setTitle("Email Sent!")
+                                                    .setMessage("Please follow the link in your email")
+                                                    // A null listener allows the button to dismiss the dialog and take no further action.
+                                                    .setNegativeButton(android.R.string.no, null)
+                                                    .setIcon(android.R.drawable.ic_dialog_info)
+                                                    .show();
+                                        }
+                                    });
+                        }
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .create();
+            dialog.show();
         });
 
 
@@ -214,66 +191,47 @@ public class LoginFragment extends Fragment {
             }
         });
 
-
         loginButton = inflate.findViewById(R.id.loginButton);
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String email = username.getText().toString();
-                String pass = password.getText().toString();
+        loginButton.setOnClickListener(view -> {
+            String email = username.getText().toString();
+            String pass = password.getText().toString();
 
-                if (isEmailValid(email) && isPasswordValid(pass)) {
+            if (isEmailValid(email) && isPasswordValid(pass)) {
 
 
-                    loginUser(email, pass, view);
-                }
+                loginUser(email, pass, view);
             }
         });
 
         return inflate;
     }
 
-
-    AccessTokenTracker accessTokenTracker = new AccessTokenTracker() {
-        @Override
-        protected void onCurrentAccessTokenChanged(AccessToken oldAccessToken, AccessToken currentAccessToken) {
-
-            if (currentAccessToken == null) {
-
-            }
-        }
-    };
-
     private void loginUser(String mail, String password, final View v) {
 
         firebaseAuth.signInWithEmailAndPassword(mail, password)
-                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        // Sign in success, update UI with the signed-in user's information
+                        Log.d("Samin", "signInWithEmail:success");
+                        FirebaseUser user = firebaseAuth.getCurrentUser();
 
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d("Samin", "signInWithEmail:success");
-                            FirebaseUser user = firebaseAuth.getCurrentUser();
-
-                            if (user.isEmailVerified()) {
-                                Intent intent = new Intent(v.getContext(), MainActivity.class);
-                                startActivity(intent);
-
-                            } else {
-
-                                Toast.makeText(getContext(), "Please verify your email!",
-                                        Toast.LENGTH_LONG).show();
-                            }
-
+                        if (user.isEmailVerified()) {
+                            Intent intent = new Intent(v.getContext(), MainActivity.class);
+                            startActivity(intent);
 
                         } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "signInWithEmail:failure", task.getException());
-                            Toast.makeText(getContext(), "Authentication failed.",
-                                    Toast.LENGTH_LONG).show();
 
+                            Toast.makeText(getContext(), "Please verify your email!",
+                                    Toast.LENGTH_LONG).show();
                         }
+
+
+                    } else {
+                        // If sign in fails, display a message to the user.
+                        Log.w(TAG, "signInWithEmail:failure", task.getException());
+                        Toast.makeText(getContext(), "Authentication failed.",
+                                Toast.LENGTH_LONG).show();
+
                     }
                 });
     }
@@ -322,29 +280,26 @@ public class LoginFragment extends Fragment {
     }
 
     private void loadUserProfile(AccessToken newAccessToken) {
-        GraphRequest request = GraphRequest.newMeRequest(newAccessToken, new GraphRequest.GraphJSONObjectCallback() {
-            @Override
-            public void onCompleted(JSONObject object, GraphResponse response) {
-                try {
-                    String first_name = object.getString("first_name");
-                    String last_name = object.getString("last_name");
-                    String email = object.getString("email");
-                    String id = object.getString("id");
-                    String image_url = "https://graph.facebook.com/" + id + "/picture?type=normal";
+        GraphRequest request = GraphRequest.newMeRequest(newAccessToken, (object, response) -> {
+            try {
+                String first_name = object.getString("first_name");
+                String last_name = object.getString("last_name");
+                String email = object.getString("email");
+                String id = object.getString("id");
+                String image_url = "https://graph.facebook.com/" + id + "/picture?type=normal";
 
-                    // txtEmail.setText(email);
-                    // txtName.setText(first_name + " " + last_name);
-                    // RequestOptions requestOptions = new RequestOptions();
-                    // requestOptions.dontAnimate();
+                // txtEmail.setText(email);
+                // txtName.setText(first_name + " " + last_name);
+                // RequestOptions requestOptions = new RequestOptions();
+                // requestOptions.dontAnimate();
 
-                    //Glide.with(LoginFragment.this).load(image_url).into();
+                //Glide.with(LoginFragment.this).load(image_url).into();
 
 
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
+
         });
 
         Bundle parameters = new Bundle();

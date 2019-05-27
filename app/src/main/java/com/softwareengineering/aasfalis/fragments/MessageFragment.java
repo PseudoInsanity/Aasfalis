@@ -55,8 +55,9 @@ public class MessageFragment extends DialogFragment {
         messageHandler = new MessageHandler();
         toolbar = view.findViewById(R.id.friendToolbar);
 
-        toolbar.setTitle(currentFriend.getFirstName());
-
+        if (currentFriend.getFirstName() != null) {
+            toolbar.setTitle(currentFriend.getFirstName());
+        }
         database = new Database();
 
         sendBtn.setOnClickListener(new View.OnClickListener() {

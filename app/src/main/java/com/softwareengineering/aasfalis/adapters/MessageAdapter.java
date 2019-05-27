@@ -10,7 +10,6 @@ import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.softwareengineering.aasfalis.R;
-import com.softwareengineering.aasfalis.client.Database;
 import com.softwareengineering.aasfalis.models.Friend;
 import com.softwareengineering.aasfalis.models.Message;
 
@@ -90,7 +89,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         ViewHolderSend(View listView) {
             super(listView);
 
-            userName = listView.findViewById(R.id.user_name);
+            userName = listView.findViewById(R.id.user_name_reg);
             userTxt = listView.findViewById(R.id.user_msg);
             time = listView.findViewById(R.id.user_time);
         }

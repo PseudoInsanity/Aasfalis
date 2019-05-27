@@ -9,7 +9,6 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.annotation.NonNull;
@@ -60,7 +59,6 @@ import com.softwareengineering.aasfalis.fragments.LoginFragment;
 import com.softwareengineering.aasfalis.fragments.MessageFragment;
 import com.softwareengineering.aasfalis.fragments.ProfileFragment;
 import com.softwareengineering.aasfalis.models.Friend;
-import com.softwareengineering.aasfalis.models.Message;
 import com.softwareengineering.aasfalis.models.PolylineData;
 
 import java.util.ArrayList;
@@ -77,7 +75,6 @@ public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
 
-    public static ArrayList<Message> messages = new ArrayList<>();
     private static final int REQUEST_USER_LOCATION_CODE = 99;
     public GoogleMap mMap;
     public Location lastLocation;
@@ -128,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements
             Database database = new Database();
             database.readCurrentUser();
             friendHandler = new FriendHandler();
-            friendHandler.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            friendHandler.execute();
             breakLoop();
             forceOut();
             startService(new Intent(this, ClientService.class));
@@ -530,5 +527,13 @@ public class MainActivity extends AppCompatActivity implements
 
         }
         hideActionBar();
+    }
+
+    public void showMsgFrag(Friend friend) {
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        MessageFragment messageFragment = new MessageFragment();
+        messageFragment.setArguments(friend);
+        messageFragment.show(fragmentManager, "MessageFragment");
     }
 }
