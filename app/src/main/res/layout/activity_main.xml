@@ -8,10 +8,6 @@
     android:fitsSystemWindows="true"
     tools:openDrawer="start">
 
-    <!--    <include
-            layout="@layout/activity_maps"/>
-    -->
-
     <ScrollView
         android:id="@+id/scrollview"
         android:layout_width="fill_parent"
@@ -59,8 +55,6 @@
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/nav_header_main"
         app:menu="@menu/activity_main_drawer" />
-
-
 
 
 </android.support.v4.widget.DrawerLayout>

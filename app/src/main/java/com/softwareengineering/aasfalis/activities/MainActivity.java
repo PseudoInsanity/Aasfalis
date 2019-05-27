@@ -37,7 +37,9 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -123,7 +125,10 @@ public class MainActivity extends AppCompatActivity implements
     private ArrayList<Marker> mTripMarkers = new ArrayList<>();
     private String address;
     private Polyline polyline;
+    private TextView usernameNav, emailNav;
+    private String currentUserEmail;
 
+    private ProfileFragment profileFragment = (ProfileFragment) getSupportFragmentManager().findFragmentByTag("ProfileFragment");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -152,17 +157,28 @@ public class MainActivity extends AppCompatActivity implements
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setCheckedItem(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        View headerView = navigationView.getHeaderView(0);
+
+       // usernameNav = (TextView) headerView.findViewById(R.id.username_nav_header);
+       // emailNav = findViewById(R.id.email_nav_header);
 
         checkUserLocationPermission();
 
-        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-            Database database = new Database();
-            database.readCurrentUser();
-            friendHandler = new FriendHandler();
-            friendHandler.execute();
-            breakLoop();
-            forceOut();
-            startService(new Intent(this, ClientService.class));
+        try {
+            if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+                Database database = new Database();
+                database.readCurrentUser();
+                friendHandler = new FriendHandler();
+                friendHandler.execute();
+                breakLoop();
+                forceOut();
+                startService(new Intent(this, ClientService.class));
+                //currentUserEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+
+                //usernameNav.setText(profileFragment.getPublicUserName(currentUserEmail));
+            }
+        } catch (NullPointerException nx) {
+            Log.d("Edmir", "NullPointer nx: " + nx.getMessage());
         }
 
         if (geoApiContext == null) {
@@ -264,11 +280,11 @@ public class MainActivity extends AppCompatActivity implements
                     tag = "FriendFragment";
                     hideActionBar();
                     drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-
                 } else {
                     fragmentClass = LoginFragment.class;
                     tag = "LoginFragment";
                     hideActionBar();
+                    Toast.makeText(this, "You must log in to see the friend list", Toast.LENGTH_SHORT).show();
                     drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                 }
                 break;
@@ -537,7 +553,6 @@ public class MainActivity extends AppCompatActivity implements
                     alert.show();
                 }
             }
-
         });
     }
 
@@ -632,7 +647,6 @@ public class MainActivity extends AppCompatActivity implements
                 AutocompleteActivityMode.OVERLAY, fields)
                 .build(this);
         startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
-
     }
 
     @Override
@@ -738,14 +752,13 @@ public class MainActivity extends AppCompatActivity implements
         for (LatLng latLngPoint : lstLatLngRoute)
             boundsBuilder.include(latLngPoint);
 
-        int routePadding = 300;
+        int routePadding = 400;
         LatLngBounds latLngBounds = boundsBuilder.build();
 
         mMap.animateCamera(
                 CameraUpdateFactory.newLatLngBounds(latLngBounds, routePadding),
                 600,
-                null
-        );
+                null);
     }
 
     public static void hideSoftKeyboard(Activity activity) {

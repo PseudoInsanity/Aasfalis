@@ -46,16 +46,42 @@ public class ProfileFragment extends Fragment {
         return view;
     }
 
-    private void getUsername(String currentUserEmail){
+    public void getUsername(String currentUserEmail) {
         DocumentReference docRef = firestore.collection("users").document(currentUserEmail);
         docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             DocumentSnapshot documentSnapshot;
+
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 if (documentSnapshot.exists()) {
                     String mUsername = documentSnapshot.getString("username");
-                    Log.d(TAG, "DocumentSnapshot data: " + mUsername);
+                    getPublicUserName(mUsername);
+                    Log.d("Edmir", "DocumentSnapshot data: " + mUsername);
                     username.setText(mUsername);
+                } else {
+                    Log.d("Edmir", "No such document");
+                }
+            }
+        });
+    }
+
+    public String getPublicUserName(String currentUsername) {
+        Log.d("Edmir", "DocumentSnapshot penis: " + currentUsername);
+        return currentUsername;
+    }
+
+
+    public void getFirstName(String currentUserEmail) {
+        DocumentReference docRef = firestore.collection("users").document(currentUserEmail);
+        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            DocumentSnapshot documentSnapshot;
+
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                if (documentSnapshot.exists()) {
+                    String firstName = documentSnapshot.getString("firstName");
+                    Log.d(TAG, "DocumentSnapshot data: " + firstName);
+                    userFirstName.setText(firstName);
                 } else {
                     Log.d(TAG, "No such document");
                 }
@@ -63,28 +89,11 @@ public class ProfileFragment extends Fragment {
         });
     }
 
-
-    private void getFirstName(String currentUserEmail){
+    public void getLastName(String currentUserEmail) {
         DocumentReference docRef = firestore.collection("users").document(currentUserEmail);
         docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             DocumentSnapshot documentSnapshot;
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                    if (documentSnapshot.exists()) {
-                        String firstName = documentSnapshot.getString("firstName");
-                        Log.d(TAG, "DocumentSnapshot data: " + firstName);
-                        userFirstName.setText(firstName);
-                    } else {
-                        Log.d(TAG, "No such document");
-                    }
-            }
-        });
-    }
 
-    private void getLastName(String currentUserEmail){
-        DocumentReference docRef = firestore.collection("users").document(currentUserEmail);
-        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            DocumentSnapshot documentSnapshot;
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 if (documentSnapshot.exists()) {
@@ -98,10 +107,11 @@ public class ProfileFragment extends Fragment {
         });
     }
 
-    private void getPhone(String currentUserEmail){
+    public void getPhone(String currentUserEmail) {
         DocumentReference docRef = firestore.collection("users").document(currentUserEmail);
         docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             DocumentSnapshot documentSnapshot;
+
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 if (documentSnapshot.exists()) {
