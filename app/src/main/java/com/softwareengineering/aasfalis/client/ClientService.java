@@ -34,7 +34,7 @@ public class ClientService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-            client.execute();
+            client.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
         return START_STICKY;
     }
@@ -47,7 +47,7 @@ public class ClientService extends Service {
             breakLoop();
             forceOut();
         } else if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-            client.execute();
+            client.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
 
     }
@@ -124,7 +124,7 @@ public class ClientService extends Service {
 
             try {
 
-                this.socket = new Socket("localhost", 5555);
+                this.socket = new Socket("192.168.0.199", 6453);
 
                 this.dataInputStream = new ObjectInputStream(socket.getInputStream());
                 this.dataOutputStream = new ObjectOutputStream(socket.getOutputStream());

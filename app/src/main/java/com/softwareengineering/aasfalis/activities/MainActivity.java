@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.annotation.NonNull;
@@ -125,9 +126,9 @@ public class MainActivity extends AppCompatActivity implements
             Database database = new Database();
             database.readCurrentUser();
             friendHandler = new FriendHandler();
-            friendHandler.execute();
-            breakLoop();
-            forceOut();
+            friendHandler.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            //breakLoop();
+            //forceOut();
             startService(new Intent(this, ClientService.class));
         }
 
@@ -527,13 +528,5 @@ public class MainActivity extends AppCompatActivity implements
 
         }
         hideActionBar();
-    }
-
-    public void showMsgFrag(Friend friend) {
-
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        MessageFragment messageFragment = new MessageFragment();
-        messageFragment.setArguments(friend);
-        messageFragment.show(fragmentManager, "MessageFragment");
     }
 }
