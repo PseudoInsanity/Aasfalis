@@ -272,11 +272,6 @@ public class MainActivity extends AppCompatActivity implements
                     drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                 }
                 break;
-            case R.id.nav_settings:
-
-                break;
-            case R.id.nav_share:
-                break;
             case R.id.nav_send:
                 fragmentClass = MessageFragment.class;
                 tag = "MessageFrag";

@@ -29,12 +29,14 @@ public class Database {
         return currentName;
     }
 
-    public void addUser(String id, String fName, String lName, String eMail){
+    public void addUser(String id, String fName, String lName, String eMail, String username, String phone){
         Map<String, Object> user = new HashMap<>();
         user.put("userid", id);
         user.put("firstName", fName);
         user.put("lastName", lName);
         user.put("email", eMail);
+        user.put("username", username);
+        user.put("phone", phone);
 
         db.collection("users").document(eMail)
                 .set(user)
