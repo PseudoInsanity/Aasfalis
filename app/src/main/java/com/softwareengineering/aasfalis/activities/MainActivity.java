@@ -122,8 +122,6 @@ public class MainActivity extends AppCompatActivity implements
     private FriendHandler friendHandler;
     private ArrayList<Marker> mTripMarkers = new ArrayList<>();
     private String address;
-
-
     private Polyline polyline;
 
     //Fragments
@@ -169,6 +167,12 @@ public class MainActivity extends AppCompatActivity implements
             breakLoop();
             forceOut();
             startService(new Intent(this, ClientService.class));
+        }
+
+        if (geoApiContext == null) {
+            geoApiContext = new GeoApiContext.Builder()
+                    .apiKey(getString(R.string.google_maps_key))
+                    .build();
         }
 
         MapFragment mapFragment = (MapFragment) getFragmentManager()
@@ -532,7 +536,7 @@ public class MainActivity extends AppCompatActivity implements
                     builder.setMessage(marker.getSnippet())
                             .setCancelable(true)
                             .setPositiveButton("Yes", (dialog, id) -> {
-                                resetSelectedMarker();
+                                //resetSelectedMarker();
                                 mSelectedMarker = marker;
                                 dialog.dismiss();
                             })
@@ -629,7 +633,7 @@ public class MainActivity extends AppCompatActivity implements
 
     private void findPlace() {
         // Set the fields to specify which types of place data to return.
-        List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME);
+        List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME,Place.Field.LAT_LNG, Place.Field.ADDRESS);
         // Start the autocomplete intent.
         Intent intent = new Autocomplete.IntentBuilder(
                 AutocompleteActivityMode.FULLSCREEN, fields)
@@ -643,11 +647,11 @@ public class MainActivity extends AppCompatActivity implements
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                Place place = Autocomplete.getPlaceFromIntent(data);
-                calculateDirections(place.getLatLng());
-                Log.i("Edmir", "Place: " + place.getName() + ", " + place.getId());
+                final Place place = Autocomplete.getPlaceFromIntent(data);
+                calculateDirections(place.getAddress());
+                Log.d("Edmir", "Place: " + place.getName() + ", " + place.getLatLng() + ", " + place.getAddress());
+
             } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
-                // TODO: Handle the error.
                 Status status = Autocomplete.getStatusFromIntent(data);
                 Log.i("Edmir", status.getStatusMessage());
             } else if (resultCode == RESULT_CANCELED) {
@@ -656,38 +660,35 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    public void calculateDirections(LatLng latLng) {
-        Log.d("Edmir", "calculateDirections: calculating directions.");
-        DirectionsApiRequest directions = new DirectionsApiRequest(geoApiContext);
+    private void calculateDirections(String address) {
+            Log.d("Edmir", "calculateDirections: calculating directions.");
+            DirectionsApiRequest directions = new DirectionsApiRequest(geoApiContext);
 
-        if (latLng != null && lastLocation != null) {
-            directions.alternatives(true);
-            com.google.maps.model.LatLng start = new com.google.maps.model.LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
+            if (address != null && lastLocation != null) {
+                directions.alternatives(true);
+                com.google.maps.model.LatLng start = new com.google.maps.model.LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
 
-            Log.d("Edmir", "calculateDirections: calculating directions1.");
-            directions.origin(start);
-            Log.d("Edmir", "calculateDirections: destination: " + latLng.toString());
-            directions.destination(String.valueOf(latLng)).setCallback(new PendingResult.Callback<DirectionsResult>() {
-                @Override
-                public void onResult(DirectionsResult result) {
-                    Log.d("Edmir", "onResult: routes: " + result.routes[0].toString());
-                    Log.d("Edmir", "onResult: duration: " + result.routes[0].legs[0].duration);
-                    Log.d("Edmir", "onResult: distance: " + result.routes[0].legs[0].distance);
-                    Log.d("Edmir", "onResult: geocodedWayPoints: " + result.geocodedWaypoints[0].toString());
-                    addPolylinesToMap(result);
+                directions.origin(start);
+                //Log.d("Edmir", "calculateDirections: destination: " + address);
+                directions.destination(address);
+                directions.setCallback(new PendingResult.Callback<DirectionsResult>() {
+                    @Override
+                    public void onResult(DirectionsResult result) {
+                     //   Log.d("Edmir", "onResult: routes: " + result.routes[0].toString());
+                     //   Log.d("Edmir", "onResult: duration: " + result.routes[0].legs[0].duration);
+                     //   Log.d("Edmir", "onResult: distance: " + result.routes[0].legs[0].distance);
+                     //   Log.d("Edmir", "onResult: geocodedWayPoints: " + result.geocodedWaypoints[0].toString());
+                        addPolylinesToMap(result);
+                        //resetSelectedMarker();
 
-
-                    resetSelectedMarker();
-                    runOnUiThread(() -> zoomRoute(polyline.getPoints()));
-                }
-
-                @Override
-                public void onFailure(Throwable e) {
-                    Log.e("Edmir", "onFailure: " + e.getMessage());
-                }
-            });
-
-        }
+                        runOnUiThread(() -> zoomRoute(polyline.getPoints()));
+                    }
+                    @Override
+                    public void onFailure(Throwable e) {
+                        Log.e("Edmir", "onFailure: " + e.getMessage());
+                    }
+                });
+            }
     }
 
     private void addPolylinesToMap(final DirectionsResult result) {
