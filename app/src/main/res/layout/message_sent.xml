@@ -16,11 +16,11 @@
         android:background="@drawable/circle"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/user_name"
+        app:layout_constraintStart_toEndOf="@+id/user_name_reg"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/user_name"
+        android:id="@+id/user_name_reg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
@@ -42,7 +42,7 @@
         android:text="hi man, how are you?"
         android:textColor="#ffffff"
         app:layout_constraintEnd_toStartOf="@+id/user_img"
-        app:layout_constraintTop_toBottomOf="@+id/user_name" />
+        app:layout_constraintTop_toBottomOf="@+id/user_name_reg" />
 
     <TextView
         android:id="@+id/user_time"

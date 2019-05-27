@@ -39,8 +39,8 @@
                     android:layout_margin="@dimen/fab_margin"
                     android:backgroundTint="@color/colorPrimaryDark"
                     app:srcCompat="@drawable/add" />
-            </fragment>
 
+            </fragment>
         </RelativeLayout>
 
     </ScrollView>
@@ -59,5 +59,8 @@
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/nav_header_main"
         app:menu="@menu/activity_main_drawer" />
+
+
+
 
 </android.support.v4.widget.DrawerLayout>
