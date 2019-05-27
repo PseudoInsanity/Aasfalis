@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.annotation.NonNull;
@@ -48,6 +49,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.maps.GeoApiContext;
 import com.softwareengineering.aasfalis.R;
 import com.softwareengineering.aasfalis.adapters.FriendHandler;
@@ -59,6 +61,7 @@ import com.softwareengineering.aasfalis.fragments.LoginFragment;
 import com.softwareengineering.aasfalis.fragments.MessageFragment;
 import com.softwareengineering.aasfalis.fragments.ProfileFragment;
 import com.softwareengineering.aasfalis.models.Friend;
+import com.softwareengineering.aasfalis.models.Message;
 import com.softwareengineering.aasfalis.models.PolylineData;
 
 import java.util.ArrayList;
@@ -75,6 +78,7 @@ public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
 
+    public static ArrayList<Message> messages = new ArrayList<>();
     private static final int REQUEST_USER_LOCATION_CODE = 99;
     public GoogleMap mMap;
     public Location lastLocation;
@@ -123,12 +127,13 @@ public class MainActivity extends AppCompatActivity implements
 
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             Database database = new Database();
-            database.readCurrentUser();
+            database.setCurrentName(FirebaseAuth.getInstance().getCurrentUser().getEmail());
             friendHandler = new FriendHandler();
-            friendHandler.execute();
+            friendHandler.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             breakLoop();
             forceOut();
             startService(new Intent(this, ClientService.class));
+
         }
 
         MapFragment mapFragment = (MapFragment) getFragmentManager()
@@ -241,10 +246,6 @@ public class MainActivity extends AppCompatActivity implements
                     hideActionBar();
                     drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                 }
-                break;
-            case R.id.nav_settings:
-                break;
-            case R.id.nav_share:
                 break;
             case R.id.nav_send:
                 fragmentClass = MessageFragment.class;

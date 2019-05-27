@@ -3,11 +3,17 @@ package com.softwareengineering.aasfalis.client;
 import android.app.Service;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
+import android.support.v7.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.softwareengineering.aasfalis.R;
 import com.softwareengineering.aasfalis.adapters.MessageAdapter;
 import com.softwareengineering.aasfalis.adapters.MessageHandler;
+import com.softwareengineering.aasfalis.fragments.MessageFragment;
 import com.softwareengineering.aasfalis.models.Message;
 import com.softwareengineering.aasfalis.models.NewFriend;
 import com.softwareengineering.aasfalis.models.User;
@@ -16,6 +22,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+
+import static com.softwareengineering.aasfalis.activities.MainActivity.messages;
 
 
 public class ClientService extends Service {
@@ -75,7 +83,6 @@ public class ClientService extends Service {
         private Object object;
         private Database database;
         private MessageHandler messageHandler;
-        private MessageAdapter adapter;
         private Message message;
 
         private Client() {}
@@ -87,8 +94,6 @@ public class ClientService extends Service {
 
                 database = new Database();
                 messageHandler = new MessageHandler();
-                adapter = new MessageAdapter(messageHandler.getMessages(), null);
-
 
                 while (FirebaseAuth.getInstance().getCurrentUser() != null) {
 
@@ -101,9 +106,11 @@ public class ClientService extends Service {
 
                         if (object instanceof Message) {
                             message = (Message) object;
-                            System.out.println("HEJEHEJEHJ: " + message.getTo());
+
                             messageHandler.addMessage(new Message(message.getFrom(), message.getTo(), message.getMessage(), message.getTime(), message.getUsername()));
-                            adapter.notifyItemInserted(messageHandler.lastIndex());
+
+
+
                         }
 
 

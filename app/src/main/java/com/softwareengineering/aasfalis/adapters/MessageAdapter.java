@@ -27,9 +27,9 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     public MessageAdapter(ArrayList<Message> messageArrayList, Friend currFr) {
 
-        messageHandler = new MessageHandler();
-        messages = messageArrayList;
-        currentFriend = currFr;
+        this.messageHandler = new MessageHandler();
+        this.messages = messageArrayList;
+        this.currentFriend = currFr;
     }
 
     @NonNull
@@ -38,29 +38,41 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
         View listView;
 
-        if (messages.get(i).getFrom().equals(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail())) {
-
-            listView = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.message_sent, viewGroup, false);
-            return new ViewHolderSend(listView);
-        } else {
-
-            listView = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.message_received, viewGroup, false);
-            return new ViewHolderReceiver(listView);
+        switch (i) {
+            case 0:
+                listView = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.message_received, viewGroup, false);
+                return new ViewHolderReceiver(listView);
+            case 1:
+                listView = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.message_sent, viewGroup, false);
+                return new ViewHolderSend(listView);
         }
+
+        return null;
     }
 
     @Override
     public void onBindViewHolder(@NotNull RecyclerView.ViewHolder viewHolder, int i) {
 
+
             if (messages.get(i).getFrom().equals(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail())) {
 
                 sendLayout((ViewHolderSend) viewHolder, i);
+
 
             } else {
 
                 receiveLayout((ViewHolderReceiver) viewHolder, i);
             }
+    }
 
+    @Override
+    public int getItemViewType(int position) {
+        if (messages != null) {
+            if (messages.get(position).getFrom().equals(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail())) {
+                return 1;
+            }
+        }
+        return 0;
     }
 
     @Override
@@ -70,14 +82,15 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     private void sendLayout (ViewHolderSend holder, int pos) {
 
-        holder.userName.setText(messages.get(pos).getUsername());
+        holder.userName.setText(messages.get(pos).getFrom());
         holder.userTxt.setText(messages.get(pos).getMessage());
         holder.time.setText(messages.get(pos).getTime());
+
     }
 
     private void receiveLayout (ViewHolderReceiver holder, int pos) {
 
-        holder.friendName.setText(messages.get(pos).getUsername());
+        holder.friendName.setText(messages.get(pos).getFrom());
         holder.friendTxt.setText(messages.get(pos).getMessage());
         holder.friendTime.setText(messages.get(pos).getTime());
     }
@@ -101,9 +114,9 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         ViewHolderReceiver(View listView) {
             super(listView);
 
-            friendName = listView.findViewById(R.id.friend_name);
-            friendTxt = listView.findViewById(R.id.friend_msg);
-            friendTime = listView.findViewById(R.id.friend_time);
+            friendName = listView.findViewById(R.id.friendName);
+            friendTxt = listView.findViewById(R.id.friendMsg);
+            friendTime = listView.findViewById(R.id.friendTime);
         }
     }
 }

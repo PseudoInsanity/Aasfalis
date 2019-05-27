@@ -2,6 +2,7 @@ package com.softwareengineering.aasfalis.fragments;
 
 
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.DialogFragment;
@@ -44,11 +45,12 @@ public class MessageFragment extends DialogFragment {
     private Friend currentFriend;
     private Toolbar toolbar;
     private Database database;
+    private View view;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.fragment_message, container, false);
+        view = inflater.inflate(R.layout.fragment_message, container, false);
 
         sendBtn = view.findViewById(R.id.msgSendBtn);
         msgTxt = view.findViewById(R.id.userMsgTxt);
@@ -70,32 +72,22 @@ public class MessageFragment extends DialogFragment {
                     String strDate = mdformat.format(calendar.getTime());
 
                     sendObject(new Message(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(), currentFriend.geteMail(), msgTxt.getText().toString(), strDate, database.getCurrentName()));
-                    messageHandler.addMessage(new Message(FirebaseAuth.getInstance().getCurrentUser().getEmail(), currentFriend.geteMail(), msgTxt.getText().toString(), strDate, database.getCurrentName()));
-                    adapter.notifyItemInserted(messageHandler.lastIndex());
 
                     msgTxt.setText("");
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            //msgBox.smoothScrollToPosition(messageHandler.lastIndex());
-                        }
-                    }, 1);
+
                 }
 
             }
         });
 
-        buildRecyclerView(view);
 
-        msgBox.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-            @Override
-            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                if (bottom < oldBottom) {
-                    layoutManager.smoothScrollToPosition(msgBox, null, adapter.getItemCount());
-                }
-            }
-        });
         return view;
+    }
+
+    @Override
+    public void onResume () {
+        super.onResume();
+        buildRecyclerView(view);
     }
 
     private void buildRecyclerView(final View view) {
@@ -127,4 +119,5 @@ public class MessageFragment extends DialogFragment {
             dialog.getWindow().setLayout(width, height);
         }
     }
+
 }

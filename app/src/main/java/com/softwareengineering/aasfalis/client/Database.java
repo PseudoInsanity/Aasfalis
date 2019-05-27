@@ -23,7 +23,11 @@ public class Database {
 
     // Write a message to the database
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private static String currentName;
+    private String currentName;
+
+    public void setCurrentName(String currentName) {
+        this.currentName = currentName;
+    }
 
     public String getCurrentName() {
         return currentName;
@@ -52,30 +56,6 @@ public class Database {
                         Log.w(TAG, "Error writing document", e);
                     }
                 });
-    }
-
-
-    public void readCurrentUser(){
-
-        currentName = "";
-        DocumentReference docRef = db.collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getEmail());
-        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        currentName = String.valueOf(document.get("firstName"));
-                        Log.d(TAG, "DocumentSnapshot data: " + document.getData());
-                    } else {
-                        Log.d(TAG, "No such document");
-                    }
-                } else {
-                    Log.d(TAG, "get failed with ", task.getException());
-                }
-            }
-        });
-
     }
 
     //method for updating the database, could be used to update telephone or username

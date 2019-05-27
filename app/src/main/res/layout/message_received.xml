@@ -8,54 +8,55 @@
     android:paddingTop="8dp">
 
     <ImageView
-        android:id="@+id/friend_img"
-        android:layout_width="0dp"
+        android:id="@+id/friendImg"
+        android:layout_width="32dp"
         android:layout_height="32dp"
         android:layout_marginStart="7dp"
         android:layout_marginEnd="8dp"
         android:background="@drawable/circle"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/friend_msg"
+        app:layout_constraintEnd_toStartOf="@+id/friendName"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/friend_name"
+        android:id="@+id/friendName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="4dp"
+        android:layout_marginEnd="313dp"
+        android:layout_marginBottom="5dp"
         android:text="John Doe"
         android:textColor="@color/colorPrimary"
         android:textSize="12sp"
-        app:layout_constraintLeft_toRightOf="@+id/friend_img"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:visibility="visible"
+        app:layout_constraintBottom_toTopOf="@+id/friendMsg"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/friendImg" />
 
     <TextView
-        android:id="@+id/friend_msg"
+        android:id="@+id/friendMsg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginEnd="215dp"
+        android:layout_marginEnd="4dp"
         android:background="@drawable/msg_txt_box"
         android:maxWidth="240dp"
         android:padding="8dp"
         android:text="hi man, how are you?"
         android:textColor="#ffffff"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/friend_img"
-        app:layout_constraintTop_toBottomOf="@+id/friend_name" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/friendTime"
+        app:layout_constraintStart_toEndOf="@+id/friendImg" />
 
     <TextView
-        android:id="@+id/friend_time"
+        android:id="@+id/friendTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="4dp"
+        android:layout_marginEnd="185dp"
         android:text="11:40"
-        android:textSize="10sp"
         android:textColor="@color/colorPrimary"
-        app:layout_constraintBottom_toBottomOf="@+id/friend_msg"
-        app:layout_constraintLeft_toRightOf="@+id/friend_msg" />
+        android:textSize="10sp"
+        app:layout_constraintBottom_toBottomOf="@+id/friendMsg"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/friendMsg" />
 
 </android.support.constraint.ConstraintLayout>

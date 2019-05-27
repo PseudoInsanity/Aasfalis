@@ -1,7 +1,6 @@
 package com.softwareengineering.aasfalis.fragments;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
@@ -19,20 +18,12 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.common.GooglePlayServicesRepairableException;
-import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.android.libraries.places.api.Places;
-import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.api.net.PlacesClient;
-import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
-import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.maps.DirectionsApiRequest;
 import com.google.maps.GeoApiContext;
 import com.google.maps.PendingResult;
@@ -45,7 +36,6 @@ import com.softwareengineering.aasfalis.models.PolylineData;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -125,7 +115,7 @@ public class DirectionsFragment extends Fragment {
                     addPolylinesToMap(result);
 
 
-                    mainActivity.resetSelectedMarker();
+                    //mainActivity.resetSelectedMarker();
                     getActivity().runOnUiThread(() -> zoomRoute(polyline.getPoints()));
                 }
 
@@ -185,7 +175,7 @@ public class DirectionsFragment extends Fragment {
                     mainActivity.hideActionBar();
                 }
             }
-            mainActivity.resetSelectedMarker();
+            //mainActivity.resetSelectedMarker();
         });
     }
 

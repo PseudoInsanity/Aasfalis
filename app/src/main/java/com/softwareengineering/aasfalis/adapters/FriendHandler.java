@@ -92,7 +92,7 @@ public class FriendHandler extends AsyncTask<Void, Void, Void> {
             try {
                 fillFriendList();
                 fillRequestList();
-                Thread.sleep(1000);
+                Thread.sleep(5000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
