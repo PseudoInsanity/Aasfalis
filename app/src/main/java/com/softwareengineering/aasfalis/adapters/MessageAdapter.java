@@ -14,7 +14,10 @@ import com.softwareengineering.aasfalis.client.Database;
 import com.softwareengineering.aasfalis.models.Friend;
 import com.softwareengineering.aasfalis.models.Message;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -23,11 +26,11 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private MessageHandler messageHandler;
     private AdapterView.OnItemClickListener mListener;
 
-    public MessageAdapter(ArrayList<Message> messageArrayList, Friend currentFriend) {
+    public MessageAdapter(ArrayList<Message> messageArrayList, Friend currFr) {
 
-        this.messageHandler = new MessageHandler();
-        this.messages = messageArrayList;
-        this.currentFriend = currentFriend;
+        messageHandler = new MessageHandler();
+        messages = messageArrayList;
+        currentFriend = currFr;
     }
 
     @NonNull
@@ -36,7 +39,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
         View listView;
 
-        if (messages.get(i).getFrom().equals(FirebaseAuth.getInstance().getCurrentUser().getEmail())) {
+        if (messages.get(i).getFrom().equals(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail())) {
 
             listView = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.message_sent, viewGroup, false);
             return new ViewHolderSend(listView);
@@ -48,11 +51,9 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int i) {
+    public void onBindViewHolder(@NotNull RecyclerView.ViewHolder viewHolder, int i) {
 
-        if ((messages.get(i).getTo().equals(FirebaseAuth.getInstance().getCurrentUser().getEmail()) && messages.get(i).getFrom().equals(currentFriend.geteMail())) ||
-                (messages.get(i).getFrom().equals(FirebaseAuth.getInstance().getCurrentUser().getEmail()) && messages.get(i).getTo().equals(currentFriend.geteMail()))) {
-            if (messages.get(i).getFrom().equals(FirebaseAuth.getInstance().getCurrentUser().getEmail())) {
+            if (messages.get(i).getFrom().equals(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail())) {
 
                 sendLayout((ViewHolderSend) viewHolder, i);
 
@@ -60,7 +61,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
                 receiveLayout((ViewHolderReceiver) viewHolder, i);
             }
-        }
+
     }
 
     @Override

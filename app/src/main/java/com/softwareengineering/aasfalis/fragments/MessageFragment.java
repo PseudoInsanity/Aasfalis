@@ -26,6 +26,7 @@ import com.softwareengineering.aasfalis.models.Message;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Objects;
 
 import static com.softwareengineering.aasfalis.client.ClientService.sendObject;
 
@@ -67,9 +68,9 @@ public class MessageFragment extends DialogFragment {
                     SimpleDateFormat mdformat = new SimpleDateFormat("HH:mm");
                     String strDate = mdformat.format(calendar.getTime());
 
-                    sendObject(new Message(FirebaseAuth.getInstance().getCurrentUser().getEmail(), currentFriend.geteMail(), msgTxt.getText().toString(), strDate, database.getCurrentName()));
-                    //messageHandler.addMessage(new Message(FirebaseAuth.getInstance().getCurrentUser().getEmail(), currentFriend.geteMail(), msgTxt.getText().toString(), strDate, database.getCurrentName()));
-                    //adapter.notifyItemInserted(messageHandler.lastIndex());
+                    sendObject(new Message(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(), currentFriend.geteMail(), msgTxt.getText().toString(), strDate, database.getCurrentName()));
+                    messageHandler.addMessage(new Message(FirebaseAuth.getInstance().getCurrentUser().getEmail(), currentFriend.geteMail(), msgTxt.getText().toString(), strDate, database.getCurrentName()));
+                    adapter.notifyItemInserted(messageHandler.lastIndex());
 
                     msgTxt.setText("");
                     new Handler().postDelayed(new Runnable() {

@@ -4,14 +4,12 @@ import com.softwareengineering.aasfalis.models.Message;
 
 import java.util.ArrayList;
 
+import static com.softwareengineering.aasfalis.activities.MainActivity.messages;
+
 public class MessageHandler {
 
-    private ArrayList<Message> messages;
 
-    public MessageHandler () {
 
-        messages = new ArrayList<>();
-    }
 
     public ArrayList<Message> getMessages() {
         return messages;
@@ -19,6 +17,7 @@ public class MessageHandler {
 
     public void addMessage (Message message) {
 
+        System.out.println("HEJEHEJEHJ2222222: " + message.getMessage());
         messages.add(message);
     }
 

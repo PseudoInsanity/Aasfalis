@@ -60,6 +60,7 @@ import com.softwareengineering.aasfalis.fragments.LoginFragment;
 import com.softwareengineering.aasfalis.fragments.MessageFragment;
 import com.softwareengineering.aasfalis.fragments.ProfileFragment;
 import com.softwareengineering.aasfalis.models.Friend;
+import com.softwareengineering.aasfalis.models.Message;
 import com.softwareengineering.aasfalis.models.PolylineData;
 
 import java.util.ArrayList;
@@ -76,6 +77,7 @@ public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
 
+    public static ArrayList<Message> messages = new ArrayList<>();
     private static final int REQUEST_USER_LOCATION_CODE = 99;
     public GoogleMap mMap;
     public Location lastLocation;
@@ -127,8 +129,8 @@ public class MainActivity extends AppCompatActivity implements
             database.readCurrentUser();
             friendHandler = new FriendHandler();
             friendHandler.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-            //breakLoop();
-            //forceOut();
+            breakLoop();
+            forceOut();
             startService(new Intent(this, ClientService.class));
         }
 

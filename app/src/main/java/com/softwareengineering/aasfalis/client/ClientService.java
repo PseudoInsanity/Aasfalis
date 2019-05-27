@@ -76,6 +76,7 @@ public class ClientService extends Service {
         private Database database;
         private MessageHandler messageHandler;
         private MessageAdapter adapter;
+        private Message message;
 
         private Client() {}
 
@@ -88,6 +89,7 @@ public class ClientService extends Service {
                 messageHandler = new MessageHandler();
                 adapter = new MessageAdapter(messageHandler.getMessages(), null);
 
+
                 while (FirebaseAuth.getInstance().getCurrentUser() != null) {
 
                     try {
@@ -98,8 +100,10 @@ public class ClientService extends Service {
                         object = dataInputStream.readObject();
 
                         if (object instanceof Message) {
-                            messageHandler.addMessage((Message) object);
-                            adapter.notifyItemChanged(messageHandler.lastIndex());
+                            message = (Message) object;
+                            System.out.println("HEJEHEJEHJ: " + message.getTo());
+                            messageHandler.addMessage(new Message(message.getFrom(), message.getTo(), message.getMessage(), message.getTime(), message.getUsername()));
+                            adapter.notifyItemInserted(messageHandler.lastIndex());
                         }
 
 
@@ -124,7 +128,7 @@ public class ClientService extends Service {
 
             try {
 
-                this.socket = new Socket("192.168.0.199", 6453);
+                this.socket = new Socket("192.168.0.199", 8798);
 
                 this.dataInputStream = new ObjectInputStream(socket.getInputStream());
                 this.dataOutputStream = new ObjectOutputStream(socket.getOutputStream());

@@ -99,7 +99,7 @@ public class Database {
                     if (document.exists()) {
                         Log.d(TAG, "DocumentSnapshot data: " + document.getData());
                         Map<String, Object> friend = new HashMap<>();
-                        friend.put("userID", Objects.requireNonNull(document.get("userID")));
+                        friend.put("userID", Objects.requireNonNull(document.get("userid")));
                         friend.put("firstName", Objects.requireNonNull(document.get("firstName")));
                         friend.put("lastName", Objects.requireNonNull(document.get("lastName")));
                         friend.put("eMail", Objects.requireNonNull(document.get("email")));
@@ -138,7 +138,7 @@ public class Database {
                     if (document.exists()) {
                         Log.d(TAG, "DocumentSnapshot data: " + document.getData());
                         Map<String, Object> user = new HashMap<>();
-                        user.put("userID", Objects.requireNonNull(document.get("userID")));
+                        user.put("userID", Objects.requireNonNull(document.get("userid")));
                         user.put("firstName", Objects.requireNonNull(document.get("firstName")));
                         user.put("lastName", Objects.requireNonNull(document.get("lastName")));
                         user.put("eMail", Objects.requireNonNull(document.get("email")));
