@@ -62,6 +62,7 @@ import com.softwareengineering.aasfalis.fragments.MessageFragment;
 import com.softwareengineering.aasfalis.fragments.ProfileFragment;
 import com.softwareengineering.aasfalis.models.Friend;
 import com.softwareengineering.aasfalis.models.Message;
+import com.softwareengineering.aasfalis.models.Panic;
 import com.softwareengineering.aasfalis.models.PolylineData;
 
 import java.util.ArrayList;
@@ -70,6 +71,7 @@ import java.util.Locale;
 
 import static com.softwareengineering.aasfalis.client.ClientService.breakLoop;
 import static com.softwareengineering.aasfalis.client.ClientService.forceOut;
+import static com.softwareengineering.aasfalis.client.ClientService.sendObject;
 
 public class MainActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener,
@@ -89,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements
     private Toolbar toolbar;
     private ValueAnimator mVaActionBar;
     private NavigationView navigationView;
-    private FloatingActionButton fab;
+    private FloatingActionButton fab, panicFab;
     private GeoApiContext geoApiContext;
     private ArrayList<PolylineData> mPolylineData = new ArrayList<>();
     private FriendHandler friendHandler;
@@ -108,9 +110,14 @@ public class MainActivity extends AppCompatActivity implements
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().permitNetwork().build());
+        friendHandler = new FriendHandler();
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(view -> openDirectionsFragment());
+
+        panicFab = findViewById(R.id.panicBtn);
+        panicFab.setOnClickListener(view ->
+                sendObject(new Panic(FirebaseAuth.getInstance().getCurrentUser().getEmail(), friendHandler.getFriendList())));
 
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 
@@ -128,12 +135,16 @@ public class MainActivity extends AppCompatActivity implements
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             Database database = new Database();
             database.setCurrentName(FirebaseAuth.getInstance().getCurrentUser().getEmail());
-            friendHandler = new FriendHandler();
             friendHandler.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             breakLoop();
             forceOut();
             startService(new Intent(this, ClientService.class));
 
+            panicFab.show();
+
+        } else {
+
+            panicFab.hide();
         }
 
         MapFragment mapFragment = (MapFragment) getFragmentManager()
@@ -197,6 +208,7 @@ public class MainActivity extends AppCompatActivity implements
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             signOut();
+            panicFab.hide();
             return true;
         }
 

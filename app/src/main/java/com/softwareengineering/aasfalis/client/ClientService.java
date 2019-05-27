@@ -1,5 +1,6 @@
 package com.softwareengineering.aasfalis.client;
 
+import android.app.AlertDialog;
 import android.app.Service;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -8,6 +9,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.support.v7.widget.RecyclerView;
+import android.view.WindowManager;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.softwareengineering.aasfalis.R;
@@ -16,6 +18,7 @@ import com.softwareengineering.aasfalis.adapters.MessageHandler;
 import com.softwareengineering.aasfalis.fragments.MessageFragment;
 import com.softwareengineering.aasfalis.models.Message;
 import com.softwareengineering.aasfalis.models.NewFriend;
+import com.softwareengineering.aasfalis.models.Panic;
 import com.softwareengineering.aasfalis.models.User;
 
 import java.io.IOException;
@@ -73,6 +76,16 @@ public class ClientService extends Service {
         client.cancelLoop();
     }
 
+    public void alertMe (Panic panic) {
+
+        AlertDialog alertDialog = new AlertDialog.Builder(this)
+                .setTitle("Friend is in danger!")
+                .setMessage(panic.getPanicFrom() + " is in danger!\nTry to contact your friend!")
+                .create();
+
+        alertDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+        alertDialog.show();
+    }
 
 
     private static class Client extends AsyncTask<Void, Void, Void> {
@@ -84,6 +97,8 @@ public class ClientService extends Service {
         private Database database;
         private MessageHandler messageHandler;
         private Message message;
+        private Panic panic;
+        private ClientService clientService;
 
         private Client() {}
 
@@ -94,6 +109,7 @@ public class ClientService extends Service {
 
                 database = new Database();
                 messageHandler = new MessageHandler();
+                clientService = new ClientService();
 
                 while (FirebaseAuth.getInstance().getCurrentUser() != null) {
 
@@ -109,8 +125,10 @@ public class ClientService extends Service {
 
                             messageHandler.addMessage(new Message(message.getFrom(), message.getTo(), message.getMessage(), message.getTime(), message.getUsername()));
 
+                        } else if (object instanceof Panic) {
 
-
+                            panic = (Panic) object;
+                            clientService.alertMe(panic);
                         }
 
 
