@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(view -> openDirectionsFragment());
 
-        panicFab = findViewById(R.id.panicBtn);
+        panicFab = findViewById(R.id.panicBt);
         panicFab.setOnClickListener(view ->
                 sendObject(new Panic(FirebaseAuth.getInstance().getCurrentUser().getEmail(), friendHandler.getFriendList())));
 
@@ -540,13 +540,5 @@ public class MainActivity extends AppCompatActivity implements
 
         }
         hideActionBar();
-    }
-
-    public void showMsgFrag(Friend friend) {
-
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        MessageFragment messageFragment = new MessageFragment();
-        messageFragment.setArguments(friend);
-        messageFragment.show(fragmentManager, "MessageFragment");
     }
 }
