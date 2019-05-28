@@ -153,7 +153,7 @@ public class ClientService extends Service {
 
             try {
 
-                this.socket = new Socket("192.168.0.199", 8798);
+                this.socket = new Socket("194.47.40.247", 8798);
 
                 this.dataInputStream = new ObjectInputStream(socket.getInputStream());
                 this.dataOutputStream = new ObjectOutputStream(socket.getOutputStream());
