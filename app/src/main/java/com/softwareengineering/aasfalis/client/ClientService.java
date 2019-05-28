@@ -1,32 +1,21 @@
 package com.softwareengineering.aasfalis.client;
 
-import android.app.AlertDialog;
 import android.app.Service;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
-import android.support.v7.widget.RecyclerView;
-import android.view.WindowManager;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.softwareengineering.aasfalis.R;
 import com.softwareengineering.aasfalis.adapters.MessageAdapter;
 import com.softwareengineering.aasfalis.adapters.MessageHandler;
-import com.softwareengineering.aasfalis.fragments.MessageFragment;
 import com.softwareengineering.aasfalis.models.Message;
 import com.softwareengineering.aasfalis.models.NewFriend;
-import com.softwareengineering.aasfalis.models.Panic;
 import com.softwareengineering.aasfalis.models.User;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-
-import static com.softwareengineering.aasfalis.activities.MainActivity.messages;
 
 
 public class ClientService extends Service {
@@ -45,7 +34,7 @@ public class ClientService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-            client.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            client.execute();
 
         return START_STICKY;
     }
@@ -58,7 +47,7 @@ public class ClientService extends Service {
             breakLoop();
             forceOut();
         } else if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-            client.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            client.execute();
         }
 
     }
@@ -76,16 +65,6 @@ public class ClientService extends Service {
         client.cancelLoop();
     }
 
-    public void alertMe (Panic panic) {
-
-        AlertDialog alertDialog = new AlertDialog.Builder(this)
-                .setTitle("Friend is in danger!")
-                .setMessage(panic.getPanicFrom() + " is in danger!\nTry to contact your friend!")
-                .create();
-
-        alertDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
-        alertDialog.show();
-    }
 
 
     private static class Client extends AsyncTask<Void, Void, Void> {
@@ -96,9 +75,7 @@ public class ClientService extends Service {
         private Object object;
         private Database database;
         private MessageHandler messageHandler;
-        private Message message;
-        private Panic panic;
-        private ClientService clientService;
+        private MessageAdapter adapter;
 
         private Client() {}
 
@@ -109,7 +86,7 @@ public class ClientService extends Service {
 
                 database = new Database();
                 messageHandler = new MessageHandler();
-                clientService = new ClientService();
+                adapter = new MessageAdapter(messageHandler.getMessages(), null);
 
                 while (FirebaseAuth.getInstance().getCurrentUser() != null) {
 
@@ -121,14 +98,8 @@ public class ClientService extends Service {
                         object = dataInputStream.readObject();
 
                         if (object instanceof Message) {
-                            message = (Message) object;
-
-                            messageHandler.addMessage(new Message(message.getFrom(), message.getTo(), message.getMessage(), message.getTime(), message.getUsername()));
-
-                        } else if (object instanceof Panic) {
-
-                            panic = (Panic) object;
-                            clientService.alertMe(panic);
+                            messageHandler.addMessage((Message) object);
+                            adapter.notifyItemChanged(messageHandler.lastIndex());
                         }
 
 
@@ -153,7 +124,7 @@ public class ClientService extends Service {
 
             try {
 
-                this.socket = new Socket("194.47.40.247", 8798);
+                this.socket = new Socket("192.168.0.199", 8798);
 
                 this.dataInputStream = new ObjectInputStream(socket.getInputStream());
                 this.dataOutputStream = new ObjectOutputStream(socket.getOutputStream());
