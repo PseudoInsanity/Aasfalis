@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.softwareengineering.aasfalis.R;
+import com.softwareengineering.aasfalis.activities.MainActivity;
 import com.softwareengineering.aasfalis.models.Friend;
 import com.softwareengineering.aasfalis.models.Message;
 
@@ -117,6 +118,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             friendName = listView.findViewById(R.id.friendName);
             friendTxt = listView.findViewById(R.id.friendMsg);
             friendTime = listView.findViewById(R.id.friendTime);
+
         }
     }
 }

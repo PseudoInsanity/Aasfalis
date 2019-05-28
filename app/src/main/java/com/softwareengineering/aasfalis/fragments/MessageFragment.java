@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.softwareengineering.aasfalis.R;
+import com.softwareengineering.aasfalis.activities.MainActivity;
 import com.softwareengineering.aasfalis.adapters.MessageAdapter;
 import com.softwareengineering.aasfalis.adapters.MessageHandler;
 import com.softwareengineering.aasfalis.client.Database;
@@ -72,7 +73,6 @@ public class MessageFragment extends DialogFragment {
                     String strDate = mdformat.format(calendar.getTime());
 
                     sendObject(new Message(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(), currentFriend.geteMail(), msgTxt.getText().toString(), strDate, database.getCurrentName()));
-
                     msgTxt.setText("");
 
                 }
