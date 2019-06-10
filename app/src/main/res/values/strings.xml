@@ -10,6 +10,7 @@
     <string name="facebook_app_id">421012328446866</string>
     <string name="fb_login_protocol_scheme">fb421012328446866</string>
     <string name="title_activity_maps2">Map</string>
+    <string name="mapbox_access_token">sk.eyJ1IjoiZWRtaXJzdWxqaWMiLCJhIjoiY2p3cWxrc2dqMHJvdzN6cXJzM3pic2xkNSJ9.NXALEHGIjkpbcfsR2NfFMg</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

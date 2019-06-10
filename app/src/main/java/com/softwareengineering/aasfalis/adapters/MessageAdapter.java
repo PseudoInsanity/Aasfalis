@@ -53,8 +53,6 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @Override
     public void onBindViewHolder(@NotNull RecyclerView.ViewHolder viewHolder, int i) {
-
-
             if (messages.get(i).getFrom().equals(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail())) {
 
                 sendLayout((ViewHolderSend) viewHolder, i);

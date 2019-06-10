@@ -92,7 +92,7 @@
         android:layout_width="375dp"
         android:layout_height="45dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="168dp"
+        android:layout_marginTop="28dp"
         android:layout_marginEnd="12dp"
         android:background="@drawable/my_edit_text"
         android:gravity="start"
@@ -104,7 +104,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.625"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/emailTxt" />
+        app:layout_constraintTop_toBottomOf="@+id/phoneTxt" />
 
     <EditText
         android:id="@+id/confirmTxt"
