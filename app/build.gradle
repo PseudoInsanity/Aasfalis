@@ -78,6 +78,7 @@ dependencies {
     implementation 'com.mapbox.mapboxsdk:mapbox-sdk-geojson:4.8.0'
     implementation 'com.mapbox.mapboxsdk:mapbox-sdk-services:4.8.0'
     implementation 'com.mapbox.mapboxsdk:mapbox-sdk-turf:4.8.0'
+    implementation 'com.mapbox.mapboxsdk:mapbox-android-plugin-places-v8:0.9.0'
 
     //Other
     implementation 'org.jetbrains:annotations:15.0'
