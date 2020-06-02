@@ -1,27 +1,24 @@
 package com.softwareengineering.aasfalis.fragments;
 
-import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.softwareengineering.aasfalis.R;
-import com.softwareengineering.aasfalis.adapters.FriendHandler;
-import com.softwareengineering.aasfalis.adapters.FriendListAdapter;
 import com.softwareengineering.aasfalis.adapters.FriendRequestAdapter;
+import com.softwareengineering.aasfalis.client.FriendService;
 
 import java.util.Objects;
 
 public class FriendRequestFragment extends Fragment {
 
-    private FriendHandler friendHandler;
+    private FriendService friendHandler;
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
     private FriendRequestAdapter adapter;
@@ -32,7 +29,7 @@ public class FriendRequestFragment extends Fragment {
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_friend_request, container, false);
 
-        friendHandler = new FriendHandler();
+        friendHandler = new FriendService();
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             buildRecyclerView(view);
         }

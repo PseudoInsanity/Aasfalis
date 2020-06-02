@@ -57,12 +57,14 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".client.ClientService" />
         <!--
     <activity
                 android:name=".activities.MapsActivity"
                 android:label="@string/title_activity_maps" />
         -->
+        <service android:enabled="true" android:name="com.softwareengineering.aasfalis.client.FriendService" />
+        <service android:enabled="true" android:name="com.softwareengineering.aasfalis.client.PositionService" />
+
         <activity
             android:name=".activities.MainActivity"
             android:label="@string/app_name"

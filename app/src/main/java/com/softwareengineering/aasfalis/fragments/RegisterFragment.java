@@ -2,9 +2,6 @@ package com.softwareengineering.aasfalis.fragments;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
-import android.support.design.widget.NavigationView;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,6 +11,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.softwareengineering.aasfalis.R;
@@ -110,7 +111,7 @@ public class RegisterFragment extends Fragment {
                         database.addUser(userID, firstName, lastName, eMail, username, phone);
 
                         user.sendEmailVerification();
-                        database.addUser(user.getUid(), firstNameTxt.getText().toString(), lastNameTxt.getText().toString(), user.getEmail(), usernameTxt.getText().toString(), phoneTxt.getText().toString());
+                        //database.addUser(user.getUid(), firstNameTxt.getText().toString(), lastNameTxt.getText().toString(), user.getEmail(), usernameTxt.getText().toString(), phoneTxt.getText().toString());
 
                         Toast.makeText(getContext(), "Verification mail sent!",
                                 Toast.LENGTH_LONG).show();

@@ -8,11 +8,13 @@ public class Friend implements Serializable {
     private String firstName;
     private String lastName;
     private String eMail;
+    private String roomID;
 
-    public Friend(String firstName, String lastName, String eMail) {
+    public Friend(String firstName, String lastName, String eMail, String roomID) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.eMail = eMail;
+        this.roomID = roomID;
     }
 
     public String getFirstName() {
@@ -25,6 +27,10 @@ public class Friend implements Serializable {
 
     public String geteMail() {
         return eMail;
+    }
+
+    public String getRoomID() {
+        return roomID;
     }
 
 }

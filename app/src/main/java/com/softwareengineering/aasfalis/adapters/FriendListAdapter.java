@@ -1,24 +1,22 @@
 package com.softwareengineering.aasfalis.adapters;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
+import androidx.fragment.app.FragmentManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.softwareengineering.aasfalis.R;
-import com.softwareengineering.aasfalis.activities.MainActivity;
 import com.softwareengineering.aasfalis.fragments.MessageFragment;
 import com.softwareengineering.aasfalis.models.Friend;
-import com.softwareengineering.aasfalis.models.User;
 
 import java.util.ArrayList;
 
@@ -49,7 +47,6 @@ public class FriendListAdapter extends RecyclerView.Adapter<FriendListAdapter.Vi
     public void onBindViewHolder(@NonNull  final ViewHolder holder, int i) {
 
         holder.userName.setText(userArrayList.get(i).getFirstName() +  " " + userArrayList.get(i).getLastName());
-
         holder.userCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

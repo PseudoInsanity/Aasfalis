@@ -2,54 +2,46 @@ package com.softwareengineering.aasfalis.fragments;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.NavigationView;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.AppCompatCheckBox;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.AppCompatCheckBox;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
 import com.facebook.AccessToken;
-import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.softwareengineering.aasfalis.R;
 import com.softwareengineering.aasfalis.activities.MainActivity;
-import com.softwareengineering.aasfalis.adapters.FriendHandler;
+import com.softwareengineering.aasfalis.client.FriendService;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.Arrays;
 
@@ -59,7 +51,7 @@ public class LoginFragment extends Fragment {
 
     private static final int REQUEST_USER_LOCATION_CODE = 99;
     private FirebaseAuth firebaseAuth;
-    private FriendHandler friendHandler;
+    private FriendService friendHandler;
 
     private CallbackManager callbackManager;
 
@@ -88,7 +80,7 @@ public class LoginFragment extends Fragment {
         signup = inflate.findViewById(R.id.sign_up_txt);
         forgotPass = inflate.findViewById(R.id.forgot_password_txt);
 
-        friendHandler = new FriendHandler();
+        friendHandler = new FriendService();
 
         callbackManager = CallbackManager.Factory.create();
 

@@ -1,14 +1,14 @@
 package com.softwareengineering.aasfalis.fragments;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -17,14 +17,13 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.softwareengineering.aasfalis.R;
 
-import static android.support.constraint.Constraints.TAG;
-
 public class ProfileFragment extends Fragment {
     FirebaseFirestore firestore = FirebaseFirestore.getInstance();
     //Database database = new Database();
     private String name;
     private String currentUserEmail;
     private TextView userFirstName, userLastName, userEmail, userPhone, username;
+    private String TAG = "";
 
     @Nullable
     @Override

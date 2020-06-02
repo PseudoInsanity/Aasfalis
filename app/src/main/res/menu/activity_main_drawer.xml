@@ -12,6 +12,10 @@
             android:id="@+id/nav_friends"
             android:icon="@drawable/friends"
             android:title="Friends" />
+        <item
+            android:id="@+id/nav_stats"
+            android:icon="@drawable/baseline_bar_chart_white_24"
+            android:title="Stats" />
 
      <!--   <item
             android:id="@+id/nav_send"

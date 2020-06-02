@@ -2,35 +2,29 @@ package com.softwareengineering.aasfalis.fragments;
 
 
 import android.app.Dialog;
-import android.content.BroadcastReceiver;
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.v4.app.DialogFragment;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.DialogFragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.softwareengineering.aasfalis.R;
-import com.softwareengineering.aasfalis.activities.MainActivity;
-import com.softwareengineering.aasfalis.adapters.MessageAdapter;
-import com.softwareengineering.aasfalis.adapters.MessageHandler;
-import com.softwareengineering.aasfalis.client.Database;
+import com.softwareengineering.aasfalis.adapters.ChatAdapter;
 import com.softwareengineering.aasfalis.models.Friend;
 import com.softwareengineering.aasfalis.models.Message;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Objects;
-
-import static com.softwareengineering.aasfalis.client.ClientService.sendObject;
+import java.util.Date;
 
 
 public class MessageFragment extends DialogFragment {
@@ -38,45 +32,58 @@ public class MessageFragment extends DialogFragment {
     private Button sendBtn;
     private EditText msgTxt;
     private RecyclerView msgBox;
-    private TextView userTxt, userName, userTime;
-    private View userMsg, friendMsg;
     private RecyclerView.LayoutManager layoutManager;
-    private MessageAdapter adapter;
-    private MessageHandler messageHandler;
+    private ChatAdapter adapter;
     private Friend currentFriend;
     private Toolbar toolbar;
-    private Database database;
-    private View view;
+    private CollectionReference chatref;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_message, container, false);
+        View view = inflater.inflate(R.layout.fragment_message, container, false);
 
         sendBtn = view.findViewById(R.id.msgSendBtn);
         msgTxt = view.findViewById(R.id.userMsgTxt);
-        messageHandler = new MessageHandler();
         toolbar = view.findViewById(R.id.friendToolbar);
 
         if (currentFriend.getFirstName() != null) {
             toolbar.setTitle(currentFriend.getFirstName());
         }
-        database = new Database();
+        chatref = FirebaseFirestore.getInstance().collection(currentFriend.getRoomID());
+
+        msgBox = view.findViewById(R.id.conversationBox);
+        msgBox.setHasFixedSize(true);
+        layoutManager = new LinearLayoutManager(view.getContext());
+        ((LinearLayoutManager) layoutManager).setStackFromEnd(true);
+        msgBox.setLayoutManager(layoutManager);
+
+        Query query = chatref;
+        query.orderBy("time", Query.Direction.ASCENDING);
+
+        FirestoreRecyclerOptions<Message> options = new FirestoreRecyclerOptions.Builder<Message>().setQuery(query, Message.class)
+                .setLifecycleOwner(this)
+                .build();
+        adapter = new ChatAdapter(options);
+        adapter.registerAdapterDataObserver( new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                msgBox.scrollToPosition(adapter.getItemCount() - 1);
+            }
+        });
+        adapter.startListening();
+        msgBox.setAdapter(adapter);
 
         sendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 if (!msgTxt.getText().toString().equals("")) {
-                    Calendar calendar = Calendar.getInstance();
-                    SimpleDateFormat mdformat = new SimpleDateFormat("HH:mm");
-                    String strDate = mdformat.format(calendar.getTime());
 
-                    sendObject(new Message(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(), currentFriend.geteMail(), msgTxt.getText().toString(), strDate, database.getCurrentName()));
+                    Message message = new Message(FirebaseAuth.getInstance().getCurrentUser().getEmail(), currentFriend.geteMail(), msgTxt.getText().toString(), new Date());
+                    chatref.document(new Date().toString()).set(message);
                     msgTxt.setText("");
-
                 }
-
             }
         });
 
@@ -87,19 +94,14 @@ public class MessageFragment extends DialogFragment {
     @Override
     public void onResume () {
         super.onResume();
-        buildRecyclerView(view);
+        adapter.startListening();
+
     }
 
-    private void buildRecyclerView(final View view) {
-
-        msgBox = (RecyclerView) view.findViewById(R.id.conversationBox);
-        msgBox.setHasFixedSize(true);
-
-        layoutManager = new LinearLayoutManager(view.getContext());
-        msgBox.setLayoutManager(layoutManager);
-
-        adapter = new MessageAdapter(messageHandler.getMessages(), currentFriend);
-        msgBox.setAdapter(adapter);
+    @Override
+    public void onStop() {
+        super.onStop();
+        adapter.stopListening();
     }
 
     public void setArguments(Friend friend) {
@@ -111,12 +113,14 @@ public class MessageFragment extends DialogFragment {
     public void onStart()
     {
         super.onStart();
+        adapter.startListening();
         Dialog dialog = getDialog();
         if (dialog != null)
         {
             int width = ViewGroup.LayoutParams.MATCH_PARENT;
             int height = ViewGroup.LayoutParams.MATCH_PARENT;
             dialog.getWindow().setLayout(width, height);
+
         }
     }
 

@@ -1,20 +1,21 @@
 package com.softwareengineering.aasfalis.models;
 
 import java.io.Serializable;
+import java.util.Date;
 
 public class Message implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-    private String from, to, username;
+    private String from, to;
     private String message;
-    private String time;
+    private Date timestamp;
 
-    public Message(String from, String to, String message, String time, String username) {
+    public Message(){}
+
+    public Message(String from, String to, String message, Date time) {
         this.from = from;
         this.to = to;
         this.message = message;
-        this.time = time;
-        this.username = username;
+        this.timestamp = time;
     }
 
     public String getFrom() {
@@ -29,11 +30,8 @@ public class Message implements Serializable {
         return message;
     }
 
-    public String getTime() {
-        return time;
+    public Date getTime() {
+        return timestamp;
     }
 
-    public String getUsername() {
-        return username;
-    }
 }

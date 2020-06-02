@@ -1,17 +1,16 @@
 package com.softwareengineering.aasfalis.adapters;
 
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.softwareengineering.aasfalis.R;
-import com.softwareengineering.aasfalis.activities.MainActivity;
-import com.softwareengineering.aasfalis.models.Friend;
 import com.softwareengineering.aasfalis.models.Message;
 
 import org.jetbrains.annotations.NotNull;
@@ -22,15 +21,17 @@ import java.util.Objects;
 public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private ArrayList<Message> messages;
-    private Friend currentFriend;
-    private MessageHandler messageHandler;
+
+    public ArrayList<Message> getMessages() {
+        return messages;
+    }
+
     private AdapterView.OnItemClickListener mListener;
 
-    public MessageAdapter(ArrayList<Message> messageArrayList, Friend currFr) {
+    public MessageAdapter(ArrayList<Message> messageArrayList) {
 
-        this.messageHandler = new MessageHandler();
         this.messages = messageArrayList;
-        this.currentFriend = currFr;
+
     }
 
     @NonNull
@@ -85,7 +86,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
         holder.userName.setText(messages.get(pos).getFrom());
         holder.userTxt.setText(messages.get(pos).getMessage());
-        holder.time.setText(messages.get(pos).getTime());
+        //holder.time.setText(messages.get(pos).getTime());
 
     }
 
@@ -93,7 +94,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
         holder.friendName.setText(messages.get(pos).getFrom());
         holder.friendTxt.setText(messages.get(pos).getMessage());
-        holder.friendTime.setText(messages.get(pos).getTime());
+        //holder.friendTime.setText(messages.get(pos).getTime());
     }
 
 

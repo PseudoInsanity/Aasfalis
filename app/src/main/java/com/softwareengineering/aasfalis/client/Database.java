@@ -1,7 +1,9 @@
 package com.softwareengineering.aasfalis.client;
 
-import android.support.annotation.NonNull;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -13,17 +15,25 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.softwareengineering.aasfalis.models.Friend;
 import com.softwareengineering.aasfalis.models.NewFriend;
+import com.softwareengineering.aasfalis.models.Position;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-
-import static android.support.constraint.Constraints.TAG;
+import java.util.UUID;
 
 public class Database {
 
     // Write a message to the database
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private String currentName;
+    private static String roomID;
+    private static boolean done;
+    private String TAG = "";
 
     public void setCurrentName(String currentName) {
         this.currentName = currentName;
@@ -70,6 +80,10 @@ public class Database {
 
     public void addFriend (Friend newFriend) {
 
+        String roomID = UUID.randomUUID().toString().replace("-","");
+        Map<String, Object> map = new HashMap<>();
+        map.put("user1", FirebaseAuth.getInstance().getCurrentUser().getEmail());
+        map.put("user2", newFriend.geteMail());
 
         DocumentReference docRef = db.collection("users").document(newFriend.geteMail());
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -85,8 +99,49 @@ public class Database {
                         friend.put("lastName", Objects.requireNonNull(document.get("lastName")));
                         friend.put("eMail", Objects.requireNonNull(document.get("email")));
 
+                        friend.put("roomID", roomID);
+                        map.put("roomID", roomID);
+
+
+
                         db.collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getEmail()).collection("friends").document(newFriend.geteMail())
                                 .set(friend)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Log.d("Matteo", "Successful add");
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.d("Matteo", "Not successful add");
+                                    }
+                                });
+
+
+                        db.collection("chatRooms").document(roomID)
+                                .set(map)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Log.d("Matteo", "Successful add");
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.d("Matteo", "Not successful add");
+                                    }
+                                });
+
+                        Map<String, Object> objectMap = new HashMap<>();
+                        objectMap.put("to", "room");
+                        objectMap.put("from", "room");
+                        objectMap.put("message", "room");
+                        objectMap.put("time", "room");
+                        db.collection(roomID).document("NewRoom")
+                                .set(objectMap)
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
@@ -122,6 +177,7 @@ public class Database {
                         user.put("firstName", Objects.requireNonNull(document.get("firstName")));
                         user.put("lastName", Objects.requireNonNull(document.get("lastName")));
                         user.put("eMail", Objects.requireNonNull(document.get("email")));
+                        user.put("roomID", roomID);
 
                         db.collection("users").document(newFriend.geteMail()).collection("friends").document(FirebaseAuth.getInstance().getCurrentUser().getEmail())
                                 .set(user)
@@ -137,6 +193,7 @@ public class Database {
                                         Log.d("Matteo", "Not successful add");
                                     }
                                 });
+
                     } else {
                         Log.d(TAG, "No such document");
                     }
@@ -206,5 +263,17 @@ public class Database {
                         Log.w(TAG, "Error deleting document", e);
                     }
                 });
+    }
+
+    public void updatePosition(JSONObject jsonObject) {
+
+        try {
+            db.collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getEmail()).collection("position").add(new Position(jsonObject.getDouble("lat"),jsonObject.getDouble("long"), new Date()));
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
     }
 }
