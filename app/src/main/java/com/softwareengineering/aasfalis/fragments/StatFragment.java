@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -167,6 +168,7 @@ public class StatFragment extends Fragment {
                         if (task.isSuccessful()) {
                             DocumentSnapshot document = task.getResult();
                             try {
+
                                 JSONObject jsonObject = new JSONObject(new JSONTokener(calculateDirections(latLngs)));
                                 int dist = Integer.parseInt(jsonObject.getJSONArray("routes").getJSONObject(0).getJSONArray("legs").getJSONObject(0).getJSONObject("distance").getString("value"));
                                 distanceArrayList.add(new Distance(document.getString("firstName"), dist));
@@ -324,9 +326,11 @@ public class StatFragment extends Fragment {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 ArrayList<LatLng> latLngs = new ArrayList<>();
-                ArrayList<Distance> distanceArrayList = new ArrayList<>();
                 for (QueryDocumentSnapshot q: task.getResult()) {
                     latLngs.add(new LatLng(q.getDouble("lat"), q.getDouble("lon")));
+                }
+                if (latLngs.size() < 1) {
+                    latLngs.add(new LatLng(0.0, 0.0));
                 }
                 DocumentReference docRef = FirebaseFirestore.getInstance().collection("users").document(friends.get(count));
                 docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -336,8 +340,13 @@ public class StatFragment extends Fragment {
                             DocumentSnapshot document = task.getResult();
                             try {
                                 JSONObject jsonObject = new JSONObject(new JSONTokener(calculateDirections(latLngs)));
-                                int dist = Integer.parseInt(jsonObject.getJSONArray("routes").getJSONObject(0).getJSONArray("legs").getJSONObject(0).getJSONObject("distance").getString("value"));
-                                distanceList.add(new Distance(document.getString("firstName"), dist));
+                                try {
+                                    int dist = Integer.parseInt(jsonObject.getJSONArray("routes").getJSONObject(0).getJSONArray("legs").getJSONObject(0).getJSONObject("distance").getString("value"));
+                                    distanceList.add(new Distance(document.getString("firstName"), dist));
+                                } catch (Exception e) {
+                                    e.getSuppressed();
+                                }
+
 
                                 count++;
 

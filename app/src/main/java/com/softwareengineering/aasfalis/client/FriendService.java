@@ -1,23 +1,76 @@
-package com.softwareengineering.aasfalis.adapters;
+package com.softwareengineering.aasfalis.client;
 
-import android.os.AsyncTask;
+import android.app.Service;
+import android.content.Intent;
+import android.os.Handler;
+import android.os.IBinder;
+
+import androidx.annotation.Nullable;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.softwareengineering.aasfalis.client.Database;
 import com.softwareengineering.aasfalis.models.Friend;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
-public class FriendHandler extends AsyncTask<Void, Void, Void> {
+public class FriendService extends Service {
 
+    public static final int notify = 1000;
+    int count = 0;
+    private Handler handler = new Handler();
+    private Timer timer = null;
     private static ArrayList<Friend> friendList;
     private static ArrayList<Friend> requestList;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private Database database;
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+
+    @Override
+    public void onCreate() {
+        if (timer != null)
+            timer.cancel();
+        else
+            timer = new Timer();
+        timer.scheduleAtFixedRate(new TimeDisplay(), 0, notify);
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        timer.cancel();    //For Cancel Timer
+    }
+
+    class TimeDisplay extends TimerTask {
+        @Override
+        public void run() {
+
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+
+                    if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+                        fillFriendList();
+                        fillRequestList();
+                    }
+                }
+            });
+
+        }
+
+    }
+
+
 
     public void fillFriendList() {
 
@@ -29,7 +82,7 @@ public class FriendHandler extends AsyncTask<Void, Void, Void> {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                         for (QueryDocumentSnapshot q : queryDocumentSnapshots) {
-                            friendList.add(new Friend(q.getString("firstName"), q.getString("lastName"), q.getString("eMail")));
+                            friendList.add(new Friend(q.getString("firstName"), q.getString("lastName"), q.getString("eMail"), q.getString("roomID")));
                         }
                     }
                 });
@@ -45,7 +98,7 @@ public class FriendHandler extends AsyncTask<Void, Void, Void> {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                         for (QueryDocumentSnapshot q : queryDocumentSnapshots) {
-                            requestList.add(new Friend(q.getString("firstName"), q.getString("lastName"), q.getString("eMail")));
+                            requestList.add(new Friend(q.getString("firstName"), q.getString("lastName"), q.getString("eMail"), ""));
                         }
                     }
                 });
@@ -82,22 +135,5 @@ public class FriendHandler extends AsyncTask<Void, Void, Void> {
             return true;
         }
         return false;
-    }
-
-
-    @Override
-    protected Void doInBackground(Void... voids) {
-
-        while (FirebaseAuth.getInstance().getCurrentUser() != null) {
-            try {
-                fillFriendList();
-                fillRequestList();
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
-        return null;
     }
 }
